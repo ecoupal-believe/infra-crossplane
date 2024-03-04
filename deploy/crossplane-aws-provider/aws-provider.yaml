@@ -15,4 +15,4 @@ metadata:
 spec:
   controllerConfigRef:
     name: aws-config
-  package: crossplane/provider-aws:v0.23.0
+  package: xpkg.upbound.io/upbound/provider-aws-s3:0.47.2
