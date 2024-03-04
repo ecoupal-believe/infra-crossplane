@@ -5,12 +5,10 @@ metadata:
   namespace: flux-system
 spec:
   interval: 5m
-  path: ./deploy/crossplane-core
+  path: ../deploy/crossplane-core
   prune: true
   sourceRef:
     kind: GitRepository
-    name: flux-system
-  secretRef:
     name: crossplane
   healthChecks:
     - apiVersion: helm.toolkit.fluxcd.io/v2beta1
