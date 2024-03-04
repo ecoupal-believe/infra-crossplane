@@ -1,0 +1,27 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta1
+kind: Kustomization
+metadata:
+  name: crossplane-helmrelease
+  namespace: flux-system
+spec:
+  interval: 5m
+  path: ./deploy/crossplane-core
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  secretRef:
+    name: crossplane
+  healthChecks:
+    - apiVersion: helm.toolkit.fluxcd.io/v2beta1
+      kind: HelmRelease
+      name: crossplane-core
+      namespace: crossplane-system
+    - kind: Deployment
+      name: crossplane
+      namespace: crossplane-system
+    - kind: Deployment
+      name: crossplane-rbac-manager
+      namespace: crossplane-system
+  validation: client
+  timeout: 2m
