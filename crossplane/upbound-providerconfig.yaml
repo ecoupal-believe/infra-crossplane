@@ -1,0 +1,16 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta1
+kind: Kustomization
+metadata:
+  name: upbound-providerconfig
+  namespace: flux-system
+spec:
+  dependsOn:
+    - name: crossplane-provider-package
+  interval: 30s
+  path: ../deploy/upbound-providerconfig
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: crossplane
+  validation: client
+  timeout: 2m
