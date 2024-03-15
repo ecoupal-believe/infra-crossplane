@@ -5,3 +5,4 @@ resources:
   - crossplane-system-namespace.yaml
   - crossplane-repository.yaml
   - crossplane-release.yaml
+  - aws-environment-config.yaml
