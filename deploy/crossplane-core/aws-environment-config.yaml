@@ -4,6 +4,7 @@ metadata:
   name: aws-config
 data:
   awsAccountID: "013969616035"
+  awsRegion: "eu-west-1"
   eksClusterName: "vma-dev"
 #  eksOIDC: OIDC_PROVIDER
 #  vpcID: VPC_ID
