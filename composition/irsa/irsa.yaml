@@ -1,0 +1,112 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: xirsa.vma.believe.com
+  labels:
+    vma.believe.com/provider: aws
+spec:
+  compositeTypeRef:
+    apiVersion: vma.believe.com/v1alpha1
+    kind: xIRSA
+  environment:
+    environmentConfigs:
+      - type: Reference
+        ref:
+          name: aws-config
+  patchSets:
+    - name: common-fields
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.resourceConfig.providerRef
+          toFieldPath: spec.providerConfigRef.name
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.resourceConfig.deletionPolicy
+          toFieldPath: spec.deletionPolicy
+  resources:
+    - name: eks-datasource
+      base:
+        apiVersion: vma.believe.com/v1alpha1
+        kind: xEKSDatasource
+        compositionSelector:
+          matchLabels:
+            vma.believe.com/provider: aws
+            eks.vma.believe.com/policy-type: read
+            eks.vma.believe.com/service: eks
+      patches:
+        - type: FromEnvironmentFieldPath
+          fromFieldPath: eksClusterName
+          toFieldPath: spec.clusterName
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.resourceConfig.providerRef
+          toFieldPath: spec.resourceConfig.providerRef
+        - type: ToCompositeFieldPath
+          fromFieldPath: status.oidcProviderUrl
+          toFieldPath: status.oidcProviderUrl
+    - name: iam-role
+      base:
+        apiVersion: iam.aws.upbound.io/v1beta1
+        kind: Role
+        spec:
+          forProvider:
+            assumeRolePolicy: ""
+      patches:
+        - type: PatchSet
+          patchSetName: common-fields
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.labels[crossplane.io/claim-name]
+          toFieldPath: metadata.annotations[crossplane.io/external-name]
+        - type: FromEnvironmentFieldPath
+          fromFieldPath: awsAccountID
+          toFieldPath: metadata.annotations[crossplane.io/aws-account-id]
+        - type: ToCompositeFieldPath
+          fromFieldPath: metadata.annotations[crossplane.io/aws-account-id]
+          toFieldPath: status.awsAccountID
+          policy:
+            fromFieldPath: Required
+        - type: FromCompositeFieldPath
+          fromFieldPath: status.oidcProviderUrl
+          toFieldPath: metadata.annotations[crossplane.io/oidc-provider-url]
+        - type: ToCompositeFieldPath
+          fromFieldPath: status.atProvider.arn
+          toFieldPath: status.roleArn
+        - type: ToCompositeFieldPath
+          fromFieldPath: status.atProvider.arn
+          toFieldPath: status.roleName
+          transforms:
+            - type: string
+              string:
+                type: Regexp
+                regexp:
+                  match: 'arn:aws:iam::(\d+):role/(.*)'
+                  group: 2
+        - type: CombineFromComposite
+          toFieldPath: spec.forProvider.assumeRolePolicy
+          combine:
+            variables:
+              - fromFieldPath: status.awsAccountID
+              - fromFieldPath: status.oidcProviderUrl
+              - fromFieldPath: status.oidcProviderUrl
+              - fromFieldPath: status.oidcProviderUrl
+              - fromFieldPath: metadata.labels[crossplane.io/claim-namespace]
+              - fromFieldPath: spec.serviceAccountName
+            strategy: string
+            string:
+              fmt: |
+                {
+                  "Version": "2012-10-17",
+                  "Statement": [
+                    {
+                      "Effect": "Allow",
+                      "Principal": {
+                        "Federated": "arn:aws:iam::%s:oidc-provider/%s"
+                      },
+                      "Action": "sts:AssumeRoleWithWebIdentity",
+                      "Condition": {
+                        "StringEquals": {
+                          "%s:aud": "sts.amazonaws.com",
+                          "%s:sub": "system:serviceaccount:%s:%s"
+                        }
+                      }
+                    }
+                  ]
+                }

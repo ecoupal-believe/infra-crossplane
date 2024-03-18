@@ -1,0 +1,67 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xirsas.vma.believe.com
+spec:
+  claimNames:
+    kind: IRSA
+    plural: irsas
+  group: vma.believe.com
+  names:
+    kind: xIRSA
+    plural: xirsas
+  versions:
+    - name: v1alpha1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          description: The Schema for the irsas API
+          properties:
+            spec:
+              type: object
+              properties:
+                policyArns:
+                  type: array
+                  items:
+                    type: string
+                serviceAccountName:
+                  type: string
+                resourceConfig:
+                  type: object
+                  description: ResourceConfig defines general properties of this resource.
+                  properties:
+                    name:
+                      type: string
+                    providerRef:
+                      type: string
+                      description: Which provider will be use to manage this resource
+                    deletionPolicy:
+                      type: string
+                      description: Defaults to Delete
+                      enum:
+                        - Delete
+                        - Orphan
+                    tags:
+                      type: object
+                      description: Key-value map of resource tags.
+                      additionalProperties:
+                        type: string
+                  required:
+                    - providerRef
+              required:
+                - resourceConfig
+                - serviceAccountName
+            status:
+              type: object
+              description: Defines the observed state of the irsa.
+              properties:
+                roleArn:
+                  type: string
+                roleName:
+                  type: string
+                awsAccountID:
+                  type: string
+                oidcProviderUrl:
+                  type: string

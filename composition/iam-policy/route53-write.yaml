@@ -1,0 +1,88 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: write-route53.iampolicies.vma.believe.com
+  labels:
+    vma.believe.com/provider: aws
+    iampolicies.vma.believe.com/policy-type: write
+    iampolicies.vma.believe.com/service: route53
+spec:
+  compositeTypeRef:
+    apiVersion: vma.believe.com/v1alpha1
+    kind: xIAMPolicy
+  patchSets:
+    - name: common-fields
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.resourceConfig.deletionPolicy
+          toFieldPath: spec.deletionPolicy
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.resourceConfig.providerRef
+          toFieldPath: spec.providerConfigRef.name
+        - fromFieldPath: "metadata.name"
+          toFieldPath: "metadata.name"
+          transforms:
+            - type: string
+              string:
+                fmt: "policy-route53-write-%s"
+  resources:
+    - name: write-policy
+      base:
+        apiVersion: iam.aws.upbound.io/v1beta1
+        kind: Policy
+        spec:
+          deletionPolicy: Delete
+          forProvider: {}
+      patches:
+        - type: PatchSet
+          patchSetName: common-fields
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.resourceConfig.tags
+          toFieldPath: spec.forProvider.tags
+          policy:
+            mergeOptions:
+              keepMapValues: true
+        - type: ToCompositeFieldPath
+          fromFieldPath: status.atProvider.resourceArn
+          toFieldPath: status.policyArn
+        - type: CombineFromComposite
+          combine:
+            variables:
+              - fromFieldPath: spec.resourceArn
+            strategy: string
+            string:
+              fmt: |
+                {
+                  "Version": "2012-10-17",
+                  "Statement": [
+                    {
+                      "Action": "route53:ChangeResourceRecordSets",
+                      "Effect": "Allow",
+                      "Resource": "arn:aws:route53:::hostedzone/%s",
+                    },
+                    {
+                      "Action": [
+                        "route53:ListTagsForResource",
+                        "route53:ListResourceRecordSets",
+                        "route53:ListHostedZones"
+                      ],
+                      "Effect": "Allow",
+                      "Resource": "*",
+                    }
+                  ]
+                }
+    - name: policy-attachment
+      base:
+        apiVersion: iam.aws.upbound.io/v1beta1
+        kind: RolePolicyAttachment
+        spec:
+          deletionPolicy: Delete
+          forProvider:
+            policyArnSelector:
+              matchControllerRef: true
+      patches:
+        - type: PatchSet
+          patchSetName: common-fields
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.roleName
+          toFieldPath: spec.forProvider.role
