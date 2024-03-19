@@ -10,7 +10,7 @@ kind: Provider
 metadata:
   name: provider-family-aws
 spec:
-  package: xpkg.upbound.io/upbound/provider-family-aws:v1.1.0
+  package: xpkg.upbound.io/upbound/provider-family-aws:v1.2.1
   controllerConfigRef:
     name: irsa-controllerconfig
 ---
@@ -19,7 +19,7 @@ kind: Provider
 metadata:
   name: provider-aws-eks
 spec:
-  package: xpkg.upbound.io/upbound/provider-aws-eks:v1.1.0
+  package: xpkg.upbound.io/upbound/provider-aws-eks:v1.2.1
   controllerConfigRef:
     name: irsa-controllerconfig
 ---
@@ -28,6 +28,6 @@ kind: Provider
 metadata:
   name: provider-aws-iam
 spec:
-  package: xpkg.upbound.io/upbound/provider-aws-iam:v1.1.0
+  package: xpkg.upbound.io/upbound/provider-aws-iam:v1.2.1
   controllerConfigRef:
     name: irsa-controllerconfig
