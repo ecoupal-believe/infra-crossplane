@@ -22,6 +22,12 @@ spec:
         - type: FromCompositeFieldPath
           fromFieldPath: spec.resourceConfig.deletionPolicy
           toFieldPath: spec.deletionPolicy
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.resourceConfig.tags
+          toFieldPath: spec.forProvider.tags
+          policy:
+            mergeOptions:
+              keepMapValues: true
   resources:
     - name: eks-datasource
       base:

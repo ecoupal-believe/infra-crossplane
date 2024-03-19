@@ -42,6 +42,13 @@ spec:
         - type: ToCompositeFieldPath
           fromFieldPath: status.atProvider.identity[0].oidc[0].issuer
           toFieldPath: status.oidcProviderUrl
+          transforms:
+            - type: string
+              string:
+                type: Regexp
+                regexp:
+                  match: '^https:\/\/(.+)'
+                  group: 1
         - type: ToCompositeFieldPath
           fromFieldPath: status.atProvider.id
           toFieldPath: status.clusterName

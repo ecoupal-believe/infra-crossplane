@@ -43,9 +43,10 @@ spec:
             mergeOptions:
               keepMapValues: true
         - type: ToCompositeFieldPath
-          fromFieldPath: status.atProvider.resourceArn
+          fromFieldPath: status.atProvider.arn
           toFieldPath: status.policyArn
         - type: CombineFromComposite
+          toFieldPath: spec.forProvider.policy
           combine:
             variables:
               - fromFieldPath: spec.resourceArn
@@ -56,18 +57,20 @@ spec:
                   "Version": "2012-10-17",
                   "Statement": [
                     {
-                      "Action": "route53:ChangeResourceRecordSets",
+                      "Sid": "VisualEditor0",
                       "Effect": "Allow",
-                      "Resource": "arn:aws:route53:::hostedzone/%s",
+                      "Action": "route53:ChangeResourceRecordSets",
+                      "Resource": "arn:aws:route53:::hostedzone/%s"
                     },
                     {
+                      "Sid": "VisualEditor1",
+                      "Effect": "Allow",
                       "Action": [
                         "route53:ListTagsForResource",
                         "route53:ListResourceRecordSets",
                         "route53:ListHostedZones"
                       ],
-                      "Effect": "Allow",
-                      "Resource": "*",
+                      "Resource": "*"
                     }
                   ]
                 }
@@ -86,3 +89,6 @@ spec:
         - type: FromCompositeFieldPath
           fromFieldPath: spec.roleName
           toFieldPath: spec.forProvider.role
+        - type: FromCompositeFieldPath
+          fromFieldPath: status.policyArn
+          toFieldPath: spec.forProvider.policyArn

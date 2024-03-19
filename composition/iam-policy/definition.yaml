@@ -1,7 +1,7 @@
 apiVersion: apiextensions.crossplane.io/v1
 kind: CompositeResourceDefinition
 metadata:
-  name: iampolicies.vma.believe.com
+  name: xiampolicies.vma.believe.com
 spec:
   group: vma.believe.com
   names:
@@ -47,7 +47,6 @@ spec:
                   required:
                     - providerRef
               required:
-                - roleName
                 - resourceConfig
             status:
               type: object
