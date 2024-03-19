@@ -1,9 +1,12 @@
-apiVersion: pkg.crossplane.io/v1alpha1
-kind: ControllerConfig
+apiVersion: pkg.crossplane.io/v1beta1
+kind: DeploymentRuntimeConfig
 metadata:
   name: irsa-controllerconfig
-  annotations:
-    eks.amazonaws.com/role-arn: arn:aws:iam::013969616035:role/crossplane-aws-provider
+spec:
+  serviceAccountTemplate:
+    metadata:
+      annotations:
+        eks.amazonaws.com/role-arn: arn:aws:iam::013969616035:role/crossplane-aws-provider
 ---
 apiVersion: pkg.crossplane.io/v1
 kind: Provider
@@ -11,16 +14,8 @@ metadata:
   name: provider-family-aws
 spec:
   package: xpkg.upbound.io/upbound/provider-family-aws:v1.2.1
-  controllerConfigRef:
-    name: irsa-controllerconfig
----
-apiVersion: pkg.crossplane.io/v1
-kind: Provider
-metadata:
-  name: provider-aws-eks
-spec:
-  package: xpkg.upbound.io/upbound/provider-aws-eks:v1.2.1
-  controllerConfigRef:
+  skipDependencyResolution: true
+  runtimeConfigRef:
     name: irsa-controllerconfig
 ---
 apiVersion: pkg.crossplane.io/v1
@@ -29,5 +24,16 @@ metadata:
   name: provider-aws-iam
 spec:
   package: xpkg.upbound.io/upbound/provider-aws-iam:v1.2.1
-  controllerConfigRef:
+  skipDependencyResolution: true
+  runtimeConfigRef:
+    name: irsa-controllerconfig
+---
+apiVersion: pkg.crossplane.io/v1
+kind: Provider
+metadata:
+  name: provider-aws-eks
+spec:
+  package: xpkg.upbound.io/upbound/provider-aws-eks:v1.2.1
+  skipDependencyResolution: true
+  runtimeConfigRef:
     name: irsa-controllerconfig
