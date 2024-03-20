@@ -83,6 +83,8 @@ spec:
           forProvider:
             policyArnSelector:
               matchControllerRef: true
+            roleSelector:
+              matchControllerRef: true
       patches:
         - type: PatchSet
           patchSetName: common-fields
