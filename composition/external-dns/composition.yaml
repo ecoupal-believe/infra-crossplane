@@ -6,6 +6,11 @@ spec:
   compositeTypeRef:
     apiVersion: vma.believe.com/v1alpha1
     kind: xExternalDNS
+  environment:
+    environmentConfigs:
+      - type: Reference
+        ref:
+          name: aws-config
   patchSets:
     - name: common-fields-composition
       patches:
@@ -26,6 +31,9 @@ spec:
         - type: ToCompositeFieldPath
           fromFieldPath: status.roleName
           toFieldPath: status.roleName
+        - type: ToCompositeFieldPath
+          fromFieldPath: status.roleArn
+          toFieldPath: status.roleArn
     - name: route53-policy
       base:
         apiVersion: vma.believe.com/v1alpha1
@@ -45,37 +53,41 @@ spec:
         - type: FromCompositeFieldPath
           fromFieldPath: spec.zoneId
           toFieldPath: spec.resourceArn
-#    - name: external-dns-chart
-#      base:
-#        apiVersion: helm.crossplane.io/v1beta1
-#        kind: Release
-#        spec:
-#          forProvider:
-#            chart:
-#              name: external-dns
-#              repository: https://charts.bitnami.com/bitnami
-#              version: 6.24.0
-#            namespace: kube-system
-#            values:
-#              serviceAccount:
-##                name: ${role_name}
-#                annotations:
-#                  eks.amazonaws.com/role-arn: arn:aws:iam::013969616035:role/ext-dns
-#              logFormat: json
-#              commonLabels:
-##                tags.datadoghq.com/env: ${env}
-#                tags.datadoghq.com/service: external-dns
-#              triggerLoopOnEvent: true
-#              annotationFilter: external-dns.alpha.kubernetes.io/exclude notin (true)
-#          providerConfigRef:
-#            name: helm-provider
-#      patches:
-#        - type: FromCompositeFieldPath
-#          fromFieldPath: spec.roleName
-#          toFieldPath: spec.forProvider.values.serviceAccount.name
-##        - type: FromCompositeFieldPath
-##          fromFieldPath: spec.roleName
-##          toFieldPath: spec.forProvider.values.serviceAccount.annotations[eks.amazonaws.com/role-arn]
-#        - type: FromCompositeFieldPath
-#          fromFieldPath: spec.env
-#          toFieldPath: spec.forProvider.values.commonLabels[tags.datadoghq.com/env]
+    - name: external-dns-chart
+      base:
+        apiVersion: helm.crossplane.io/v1beta1
+        kind: Release
+        spec:
+          providerConfigRef:
+            name: helm-provider
+          forProvider:
+            chart:
+              name: external-dns
+              repository: https://charts.bitnami.com/bitnami
+              version: 6.24.0
+            values:
+              logFormat: json
+              commonLabels:
+                tags.datadoghq.com/service: external-dns
+              triggerLoopOnEvent: true
+              annotationFilter: external-dns.alpha.kubernetes.io/exclude notin (true)
+            set:
+              - name: serviceAccount.name
+              - name: serviceAccount.annotations.eks\.amazonaws\.com/role-arn
+              - name: commonLabels.tags\.datadoghq\.com/env
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.labels[crossplane.io/claim-name]
+          toFieldPath: metadata.annotations[crossplane.io/external-name]
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.labels[crossplane.io/claim-namespace]
+          toFieldPath:  spec.forProvider.namespace
+        - type: FromCompositeFieldPath
+          fromFieldPath: status.roleName
+          toFieldPath: spec.forProvider.set[0].value
+        - type: FromCompositeFieldPath
+          fromFieldPath: status.roleArn
+          toFieldPath: spec.forProvider.set[1].value
+        - type: FromEnvironmentFieldPath
+          fromFieldPath: env
+          toFieldPath: spec.forProvider.set[2].value

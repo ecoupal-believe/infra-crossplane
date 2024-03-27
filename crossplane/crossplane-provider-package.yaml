@@ -12,9 +12,5 @@ spec:
   sourceRef:
     kind: GitRepository
     name: crossplane
-#  healthChecks:
-#    - kind: Deployment
-#      name: crossplane-provider-aws-45985ebe751d
-#      namespace: crossplane-system
   validation: client
   timeout: 2m

@@ -61,20 +61,7 @@ spec:
               properties:
                 roleName:
                   type: string
+                roleArn:
+                  type: string
                 policyArn:
                   type: string
-#                env:
-#                  type: string
-#                roleName:
-#                  type: string
-#                oidcProviderArn:
-#                  type: string
-#                namespaceServiceAccounts:
-#                  type: string
-#                externalDnsHostedZoneArns:
-#                  type: string
-#          required:
-#            - env
-#            - roleName
-#            - oidcProviderArn
-#            - namespaceServiceAccounts
