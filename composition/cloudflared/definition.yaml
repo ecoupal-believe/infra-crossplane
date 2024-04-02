@@ -1,15 +1,15 @@
 apiVersion: apiextensions.crossplane.io/v1
 kind: CompositeResourceDefinition
 metadata:
-  name: xexternaldns.vma.believe.com
+  name: xcloudflared.vma.believe.com
 spec:
   group: vma.believe.com
   claimNames:
-    kind: ExternalDNS
-    plural: externaldns
+    kind: Cloudflared
+    plural: cloudflared
   names:
-    kind: xExternalDNS
-    plural: xexternaldns
+    kind: xCloudflared
+    plural: xcloudflared
   versions:
     - name: v1alpha1
       served: true
@@ -19,16 +19,27 @@ spec:
           type: object
           properties:
             spec:
-              description: Defines the desired state of ExternalDNS
+              description: Defines the desired state of Cloudflared
               type: object
               properties:
-                policyArns:
+                accountId:
+                  type: string
+                tunnelId:
+                  type: string
+                tunnelName:
+                  type: string
+                tunnelSecret:
+                  type: string
+                ingresses:
                   type: array
                   items:
-                    type: string
-                serviceAccountName:
-                  type: string
-                zoneId:
+                    type: object
+                    properties:
+                      hostname:
+                        type: string
+                      service:
+                        type: string
+                namespace:
                   type: string
                 resourceConfig:
                   type: object
@@ -50,20 +61,5 @@ spec:
                       description: Key-value map of resource tags.
                       additionalProperties:
                         type: string
-                  required:
-                    - providerRef
               required:
-                - serviceAccountName
                 - resourceConfig
-            status:
-              type: object
-              description: Defines the observed state of ExternalDNS
-              properties:
-                env:
-                  type: string
-                roleName:
-                  type: string
-                roleArn:
-                  type: string
-                policyArn:
-                  type: string

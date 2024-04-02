@@ -1,15 +1,12 @@
 apiVersion: apiextensions.crossplane.io/v1
 kind: CompositeResourceDefinition
 metadata:
-  name: xexternaldns.vma.believe.com
+  name: xhelmreleases.vma.believe.com
 spec:
   group: vma.believe.com
-  claimNames:
-    kind: ExternalDNS
-    plural: externaldns
   names:
-    kind: xExternalDNS
-    plural: xexternaldns
+    kind: xHelmRelease
+    plural: xhelmreleases
   versions:
     - name: v1alpha1
       served: true
@@ -17,19 +14,24 @@ spec:
       schema:
         openAPIV3Schema:
           type: object
+          description: The Schema for the the helm release
           properties:
             spec:
-              description: Defines the desired state of ExternalDNS
               type: object
+              description: Defines the desired state of a helm release
               properties:
-                policyArns:
-                  type: array
-                  items:
-                    type: string
-                serviceAccountName:
+                namespace:
                   type: string
-                zoneId:
-                  type: string
+                chartConfig:
+                  type: object
+                  description: chartConfig defines chart configuration
+                  properties:
+                    name:
+                      type: string
+                    repository:
+                      type: string
+                    version:
+                      type: string
                 resourceConfig:
                   type: object
                   description: ResourceConfig defines general properties of this resource.
@@ -50,20 +52,6 @@ spec:
                       description: Key-value map of resource tags.
                       additionalProperties:
                         type: string
-                  required:
-                    - providerRef
-              required:
-                - serviceAccountName
-                - resourceConfig
-            status:
-              type: object
-              description: Defines the observed state of ExternalDNS
-              properties:
-                env:
+                values:
                   type: string
-                roleName:
-                  type: string
-                roleArn:
-                  type: string
-                policyArn:
-                  type: string
+

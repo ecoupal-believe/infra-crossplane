@@ -1,15 +1,15 @@
 apiVersion: apiextensions.crossplane.io/v1
 kind: CompositeResourceDefinition
 metadata:
-  name: xexternaldns.vma.believe.com
+  name: xclusterautoscalers.vma.believe.com
 spec:
   group: vma.believe.com
   claimNames:
-    kind: ExternalDNS
-    plural: externaldns
+    kind: ClusterAutoscaler
+    plural: clusterautoscalers
   names:
-    kind: xExternalDNS
-    plural: xexternaldns
+    kind: xClusterAutoscaler
+    plural: xclusterautoscalers
   versions:
     - name: v1alpha1
       served: true
@@ -28,7 +28,9 @@ spec:
                     type: string
                 serviceAccountName:
                   type: string
-                zoneId:
+                clusterName:
+                  type: string
+                namespace:
                   type: string
                 resourceConfig:
                   type: object

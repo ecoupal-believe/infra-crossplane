@@ -7,4 +7,7 @@ resources:
   - eks-datasource
   - iam-policy
   - irsa
-#  - external-dns
+  - helm-release
+  - external-dns
+  - cloudflared
+  - cluster-autoscaler

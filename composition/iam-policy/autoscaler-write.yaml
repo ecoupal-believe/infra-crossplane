@@ -1,11 +1,11 @@
 apiVersion: apiextensions.crossplane.io/v1
 kind: Composition
 metadata:
-  name: write-route53.iampolicies.vma.believe.com
+  name: write-autoscaler.iampolicies.vma.believe.com
   labels:
     vma.believe.com/provider: aws
     iampolicies.vma.believe.com/policy-type: write
-    iampolicies.vma.believe.com/service: route53
+    iampolicies.vma.believe.com/service: autoscaler
 spec:
   compositeTypeRef:
     apiVersion: vma.believe.com/v1alpha1
@@ -19,12 +19,12 @@ spec:
         - type: FromCompositeFieldPath
           fromFieldPath: spec.resourceConfig.providerRef
           toFieldPath: spec.providerConfigRef.name
-        - fromFieldPath: metadata.name
-          toFieldPath: metadata.name
+        - fromFieldPath: "metadata.name"
+          toFieldPath: "metadata.name"
           transforms:
             - type: string
               string:
-                fmt: "policy-route53-write-%s"
+                fmt: "policy-autoscaler-write-%s"
   resources:
     - name: write-policy
       base:
@@ -32,6 +32,7 @@ spec:
         kind: Policy
         spec:
           deletionPolicy: Delete
+          forProvider: {}
       patches:
         - type: PatchSet
           patchSetName: common-fields
@@ -50,7 +51,7 @@ spec:
           transforms:
             - type: string
               string:
-                fmt: "policy-route53-write-%s"
+                fmt: "policy-autoscaler-write-%s"
         - type: CombineFromComposite
           toFieldPath: spec.forProvider.policy
           combine:
@@ -65,18 +66,33 @@ spec:
                     {
                       "Sid": "VisualEditor0",
                       "Effect": "Allow",
-                      "Action": "route53:ChangeResourceRecordSets",
-                      "Resource": "arn:aws:route53:::hostedzone/%s"
+                      "Action": [
+                        "autoscaling:DescribeAutoScalingGroups",
+                        "autoscaling:DescribeAutoScalingInstances",
+                        "autoscaling:DescribeLaunchConfigurations",
+                        "autoscaling:DescribeScalingActivities",
+                        "autoscaling:DescribeTags",
+                        "ec2:DescribeLaunchTemplateVersions",
+                        "ec2:DescribeInstanceTypes",
+                        "eks:DescribeNodegroup",
+                        "ec2:DescribeImages",
+                        "ec2:GetInstanceTypesFromInstanceRequirements"
+                      ],
+                      "Resource": "*"
                     },
                     {
                       "Sid": "VisualEditor1",
                       "Effect": "Allow",
                       "Action": [
-                        "route53:ListTagsForResource",
-                        "route53:ListResourceRecordSets",
-                        "route53:ListHostedZones"
+                        "autoscaling:SetDesiredCapacity",
+                        "autoscaling:TerminateInstanceInAutoScalingGroup"
                       ],
-                      "Resource": "*"
+                      "Resource": "*",
+                      "Condition": {
+                        "StringEquals": {
+                            "autoscaling:ResourceTag/kubernetes.io/cluster/%s": "owned"
+                        }
+                      }
                     }
                   ]
                 }

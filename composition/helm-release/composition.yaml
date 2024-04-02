@@ -1,0 +1,40 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: xhelmreleases.vma.believe.com
+spec:
+  compositeTypeRef:
+    apiVersion: vma.believe.com/v1alpha1
+    kind: xHelmRelease
+  mode: Pipeline
+  pipeline:
+    - step: render-templates
+      functionRef:
+        name: function-go-templating
+      input:
+        apiVersion: gotemplating.fn.crossplane.io/v1beta1
+        kind: GoTemplate
+        source: Inline
+        inline:
+          template: |
+            apiVersion: helm.crossplane.io/v1beta1
+            kind: Release
+            metadata:
+              annotations:
+                gotemplating.fn.crossplane.io/composition-resource-name: {{ .observed.composite.resource.spec.resourceConfig.name }}
+                crossplane.io/external-name: {{ .observed.composite.resource.spec.resourceConfig.name }}
+            spec:
+              providerConfigRef:
+                name: helm-provider
+              {{ if ne $.observed.composite.resource.spec.resourceConfig.deletionPolicy nil }}
+              deletionPolicy: {{ .observed.composite.resource.spec.resourceConfig.deletionPolicy }}
+              {{ end }}
+              forProvider:
+                namespace: {{ .observed.composite.resource.spec.namespace }}
+                chart: 
+                  {{ .observed.composite.resource.spec.chartConfig | toYaml | nindent 6  }} 
+                values:
+                  {{ .observed.composite.resource.spec.values | nindent 6  }}
+    - step: automatically-detect-ready-composed-resources
+      functionRef:
+        name: function-auto-ready
