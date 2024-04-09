@@ -53,7 +53,7 @@ spec:
                   vma.believe.com/provider: aws
                   iampolicies.vma.believe.com/policy-type: write
                   iampolicies.vma.believe.com/service: autoscaler
-              resourceArn: {{ .observed.composite.resource.spec.clusterName }}
+              resourceArn: {{ index .context "apiextensions.crossplane.io/environment" "eksClusterName" }}
               roleName: {{ (dig "resources" (print $.observed.composite.resource.spec.resourceConfig.name "-irsa") "resource" "status" "roleName" "" $.observed ) }}
               resourceConfig:
                 {{ .observed.composite.resource.spec.resourceConfig | toYaml | nindent 4 }}
@@ -92,6 +92,13 @@ spec:
                   additionalLabels:
                     tags.datadoghq.com/env: {{ index .context "apiextensions.crossplane.io/environment" "env" }}
                     tags.datadoghq.com/service: cluster-autoscaler
+                  
+                  autoscalingGroups:
+                  {{ range .observed.composite.resource.spec.autoscalingGroups }}
+                  - name: {{ .name }}
+                    minSize: {{ .minSize }}
+                    maxSize: {{ .maxSize }}
+                  {{ end }}
             {{ end }}
     - step: automatically-detect-ready-composed-resources
       functionRef:

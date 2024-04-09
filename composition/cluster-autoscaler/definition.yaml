@@ -28,8 +28,17 @@ spec:
                     type: string
                 serviceAccountName:
                   type: string
-                clusterName:
-                  type: string
+                autoscalingGroups:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      minSize:
+                        type: integer
+                      maxSize:
+                        type: integer
                 namespace:
                   type: string
                 resourceConfig:
