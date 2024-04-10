@@ -3,4 +3,4 @@ kind: Kustomization
 namespace: crossplane-system
 resources:
   - definition.yaml
-  - irsa.yaml
+  - composition.yaml

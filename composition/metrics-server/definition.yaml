@@ -1,15 +1,15 @@
 apiVersion: apiextensions.crossplane.io/v1
 kind: CompositeResourceDefinition
 metadata:
-  name: xcloudflared.vma.believe.com
+  name: xmetricsserver.vma.believe.com
 spec:
   group: vma.believe.com
   claimNames:
-    kind: Cloudflared
-    plural: cloudflared
+    kind: MetricsServer
+    plural: metricsserver
   names:
-    kind: xCloudflared
-    plural: xcloudflared
+    kind: xMetricsServer
+    plural: xmetricsserver
   versions:
     - name: v1alpha1
       served: true
@@ -19,33 +19,30 @@ spec:
           type: object
           properties:
             spec:
-              description: Defines the desired state of Cloudflared
+              description: Defines the desired state of MetricsServer
               type: object
               properties:
-                accountId:
-                  type: string
-                tunnelId:
-                  type: string
-                tunnelName:
-                  type: string
-                tunnelSecret:
-                  type: string
-                ingresses:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      hostname:
-                        type: string
-                      service:
-                        type: string
                 resourceConfig:
                   type: object
                   description: ResourceConfig defines general properties of this resource.
                   properties:
+                    name:
+                      type: string
+                    providerRef:
+                      type: string
+                      description: Which provider will be use to manage this resource
                     deletionPolicy:
                       type: string
                       description: Defaults to Delete
                       enum:
                         - Delete
                         - Orphan
+                    tags:
+                      type: object
+                      description: Key-value map of resource tags.
+                      additionalProperties:
+                        type: string
+                  required:
+                    - providerRef
+              required:
+                - resourceConfig

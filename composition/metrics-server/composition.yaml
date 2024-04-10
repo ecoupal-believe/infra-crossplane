@@ -1,0 +1,30 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: metrics-server.vma.believe.com
+spec:
+  compositeTypeRef:
+    apiVersion: vma.believe.com/v1alpha1
+    kind: xMetricsServer
+  patchSets:
+    - name: common-fields-composition
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.resourceConfig
+          toFieldPath: spec.resourceConfig
+  resources:
+    - name: external-dns-chart
+      base:
+        apiVersion: vma.believe.com/v1alpha1
+        kind: xHelmRelease
+        spec:
+          chartConfig:
+            name: metrics-server
+            repository: https://kubernetes-sigs.github.io/metrics-server
+            version: 3.11.0
+      patches:
+        - type: PatchSet
+          patchSetName: common-fields-composition
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.labels[crossplane.io/claim-namespace]
+          toFieldPath: spec.namespace

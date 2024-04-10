@@ -48,16 +48,16 @@ spec:
             kind: Release
             metadata:
               annotations:
-                gotemplating.fn.crossplane.io/composition-resource-name: {{ .observed.composite.resource.spec.resourceConfig.name }}
-                crossplane.io/external-name: {{ .observed.composite.resource.spec.resourceConfig.name }}
+                gotemplating.fn.crossplane.io/composition-resource-name: {{ dig "composite" "resource" "metadata" "labels" "crossplane.io/claim-name" "" $.observed }}
+                crossplane.io/external-name: {{ dig "composite" "resource" "metadata" "labels" "crossplane.io/claim-name" "" $.observed }}
             spec:
               providerConfigRef:
-                name: helm-provider
+                name:  helm-provider
               {{ if ne $.observed.composite.resource.spec.resourceConfig.deletionPolicy nil }}
               deletionPolicy: {{ .observed.composite.resource.spec.resourceConfig.deletionPolicy }}
               {{ end }}
               forProvider:
-                namespace: {{ .observed.composite.resource.spec.namespace }}
+                namespace: {{ dig "composite" "resource" "metadata" "labels" "crossplane.io/claim-namespace" "" $.observed }}
                 {{- include "chart" $vals | nindent 4}}
                 values:
                   {{- include "values" $vals | nindent 6}}

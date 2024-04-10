@@ -28,12 +28,13 @@ spec:
         source: Inline
         inline:
           template: |
+            {{$resourceName:= dig "composite" "resource" "metadata" "labels" "crossplane.io/claim-name" "" $.observed}}
             apiVersion: vma.believe.com/v1alpha1
             kind: xIRSA
             metadata:
               annotations:
-                gotemplating.fn.crossplane.io/composition-resource-name: {{ .observed.composite.resource.spec.resourceConfig.name }}-irsa
-                crossplane.io/external-name: {{ .observed.composite.resource.spec.resourceConfig.name }}
+                gotemplating.fn.crossplane.io/composition-resource-name: {{ print $resourceName "-irsa" }}
+                crossplane.io/external-name: {{ $resourceName }}
             spec:
               serviceAccountName: {{ .observed.composite.resource.spec.serviceAccountName }}
               resourceConfig:
@@ -46,7 +47,7 @@ spec:
             kind: xIAMPolicy
             metadata:
               annotations:
-                gotemplating.fn.crossplane.io/composition-resource-name: {{ .observed.composite.resource.spec.resourceConfig.name }}-policy
+                gotemplating.fn.crossplane.io/composition-resource-name: {{ print $resourceName "-policy" }}
             spec:
               compositionSelector:
                 matchLabels:
@@ -54,25 +55,25 @@ spec:
                   iampolicies.vma.believe.com/policy-type: write
                   iampolicies.vma.believe.com/service: autoscaler
               resourceArn: {{ index .context "apiextensions.crossplane.io/environment" "eksClusterName" }}
-              roleName: {{ (dig "resources" (print $.observed.composite.resource.spec.resourceConfig.name "-irsa") "resource" "status" "roleName" "" $.observed ) }}
+              roleName: {{ (dig "resources" (print $resourceName "-irsa") "resource" "status" "roleName" "" $.observed ) }}
               resourceConfig:
                 {{ .observed.composite.resource.spec.resourceConfig | toYaml | nindent 4 }}
             ---
-            {{ if ne (dig "resources" (print $.observed.composite.resource.spec.resourceConfig.name "-irsa") "resource" "status" "roleArn" "" $.observed ) "" }}
+            {{ if ne (dig "resources" (print $resourceName "-irsa") "resource" "status" "roleArn" "" $.observed ) "" }}
             apiVersion: helm.crossplane.io/v1beta1
             kind: Release
             metadata:
               annotations:
-                gotemplating.fn.crossplane.io/composition-resource-name: {{ .observed.composite.resource.spec.resourceConfig.name }}-release
-                crossplane.io/external-name: {{ .observed.composite.resource.spec.resourceConfig.name }}
+                gotemplating.fn.crossplane.io/composition-resource-name: {{ print $resourceName "-release" }}
+                crossplane.io/external-name: {{ $resourceName }}
             spec:
               providerConfigRef:
-                name: helm-provider
+                name:  helm-provider
               {{ if ne $.observed.composite.resource.spec.resourceConfig.deletionPolicy nil }}
               deletionPolicy: {{ .observed.composite.resource.spec.resourceConfig.deletionPolicy }}
               {{ end }}
               forProvider:
-                namespace: {{ .observed.composite.resource.spec.namespace }}
+                namespace: {{ dig "composite" "resource" "metadata" "labels" "crossplane.io/claim-namespace" "" $.observed }}
                 chart:
                   name: cluster-autoscaler
                   repository: https://kubernetes.github.io/autoscaler
@@ -85,9 +86,9 @@ spec:
                   
                   rbac:
                     serviceAccount:
-                      name: {{ (dig "resources" (print $.observed.composite.resource.spec.resourceConfig.name "-irsa") "resource" "status" "roleName" "" $.observed ) }}
+                      name: {{ (dig "resources" (print $resourceName "-irsa") "resource" "status" "roleName" "" $.observed ) }}
                       annotations:
-                        eks.amazonaws.com/role-arn: {{ (dig "resources" (print $.observed.composite.resource.spec.resourceConfig.name "-irsa") "resource" "status" "roleArn" "" $.observed ) }}
+                        eks.amazonaws.com/role-arn: {{ dig "resources" (print $resourceName "-irsa") "resource" "status" "roleArn" "" $.observed }}
                   
                   additionalLabels:
                     tags.datadoghq.com/env: {{ index .context "apiextensions.crossplane.io/environment" "env" }}

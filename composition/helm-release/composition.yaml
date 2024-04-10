@@ -32,9 +32,11 @@ spec:
               forProvider:
                 namespace: {{ .observed.composite.resource.spec.namespace }}
                 chart: 
-                  {{ .observed.composite.resource.spec.chartConfig | toYaml | nindent 6  }} 
+                  {{ .observed.composite.resource.spec.chartConfig | toYaml | nindent 6  }}
+                {{ if ne $.observed.composite.resource.spec.values nil }}
                 values:
                   {{ .observed.composite.resource.spec.values | nindent 6  }}
+                {{ end }}
     - step: automatically-detect-ready-composed-resources
       functionRef:
         name: function-auto-ready

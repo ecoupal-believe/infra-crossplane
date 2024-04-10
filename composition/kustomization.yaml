@@ -11,3 +11,4 @@ resources:
   - external-dns
   - cloudflared
   - cluster-autoscaler
+  - metrics-server
