@@ -71,12 +71,6 @@ spec:
         - type: ToCompositeFieldPath
           fromFieldPath: metadata.annotations[crossplane.io/env]
           toFieldPath: status.env
-        - type: FromCompositeFieldPath
-          fromFieldPath: metadata.labels[crossplane.io/claim-name]
-          toFieldPath: spec.resourceConfig.name
-        - type: FromCompositeFieldPath
-          fromFieldPath: metadata.labels[crossplane.io/claim-namespace]
-          toFieldPath:  spec.namespace
         - type: CombineFromComposite
           toFieldPath: spec.values
           combine:

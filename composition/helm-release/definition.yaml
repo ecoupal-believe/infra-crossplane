@@ -20,8 +20,6 @@ spec:
               type: object
               description: Defines the desired state of a helm release
               properties:
-                namespace:
-                  type: string
                 chartConfig:
                   type: object
                   description: chartConfig defines chart configuration
@@ -36,22 +34,12 @@ spec:
                   type: object
                   description: ResourceConfig defines general properties of this resource.
                   properties:
-                    name:
-                      type: string
-                    providerRef:
-                      type: string
-                      description: Which provider will be use to manage this resource
                     deletionPolicy:
                       type: string
                       description: Defaults to Delete
                       enum:
                         - Delete
                         - Orphan
-                    tags:
-                      type: object
-                      description: Key-value map of resource tags.
-                      additionalProperties:
-                        type: string
                 values:
                   type: string
 

@@ -34,8 +34,6 @@ spec:
                   type: object
                   description: ResourceConfig defines general properties of this resource.
                   properties:
-                    name:
-                      type: string
                     providerRef:
                       type: string
                       description: Which provider will be use to manage this resource
