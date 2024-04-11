@@ -1,0 +1,97 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: load-balancer.vma.believe.com
+spec:
+  compositeTypeRef:
+    apiVersion: vma.believe.com/v1alpha1
+    kind: xLoadBalancer
+  environment:
+    environmentConfigs:
+      - type: Reference
+        ref:
+          name: aws-config
+  patchSets:
+    - name: common-fields-composition
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.resourceConfig
+          toFieldPath: spec.resourceConfig
+  resources:
+    - name: irsa
+      base:
+        apiVersion: vma.believe.com/v1alpha1
+        kind: xIRSA
+      patches:
+        - type: PatchSet
+          patchSetName: common-fields-composition
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.serviceAccountName
+          toFieldPath: spec.serviceAccountName
+        - type: ToCompositeFieldPath
+          fromFieldPath: status.roleName
+          toFieldPath: status.roleName
+        - type: ToCompositeFieldPath
+          fromFieldPath: status.roleArn
+          toFieldPath: status.roleArn
+    - name: load-balancer-policy
+      base:
+        apiVersion: vma.believe.com/v1alpha1
+        kind: xIAMPolicy
+        spec:
+          compositionSelector:
+            matchLabels:
+              vma.believe.com/provider: aws
+              iampolicies.vma.believe.com/policy-type: write
+              iampolicies.vma.believe.com/service: load-balancer
+      patches:
+        - type: PatchSet
+          patchSetName: common-fields-composition
+        - type: FromCompositeFieldPath
+          fromFieldPath: status.roleName
+          toFieldPath: spec.roleName
+    - name: external-dns-chart
+      base:
+        apiVersion: vma.believe.com/v1alpha1
+        kind: xHelmRelease
+        spec:
+          chartConfig:
+            name: aws-load-balancer-controller
+            repository: https://aws.github.io/eks-charts
+            version: 1.7.2
+      patches:
+        - type: PatchSet
+          patchSetName: common-fields-composition
+        - type: FromEnvironmentFieldPath
+          fromFieldPath: env
+          toFieldPath: metadata.annotations[crossplane.io/env]
+        - type: ToCompositeFieldPath
+          fromFieldPath: metadata.annotations[crossplane.io/env]
+          toFieldPath: status.env
+        - type: FromEnvironmentFieldPath
+          fromFieldPath: eksClusterName
+          toFieldPath: metadata.annotations[crossplane.io/cluster-name]
+        - type: ToCompositeFieldPath
+          fromFieldPath: metadata.annotations[crossplane.io/cluster-name]
+          toFieldPath: status.clusterName
+        - type: CombineFromComposite
+          toFieldPath: spec.values
+          combine:
+            variables:
+              - fromFieldPath: spec.replicaCount
+              - fromFieldPath: status.clusterName
+              - fromFieldPath: status.roleName
+              - fromFieldPath: status.roleArn
+              - fromFieldPath: status.env
+            strategy: string
+            string:
+              fmt: |
+                replicaCount: %d
+                clusterName: "%s"
+                serviceAccount:
+                  name: %s
+                  annotations:
+                    eks.amazonaws.com/role-arn: %s
+                additionalLabels:
+                  tags.datadoghq.com/env: %s
+                  tags.datadoghq.com/service: aws-load-balancer-controller

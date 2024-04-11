@@ -12,3 +12,4 @@ resources:
   - cloudflared
   - cluster-autoscaler
   - metrics-server
+  - load-balancer
