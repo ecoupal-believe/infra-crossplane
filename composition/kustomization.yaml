@@ -13,3 +13,4 @@ resources:
   - cluster-autoscaler
   - metrics-server
   - load-balancer
+  - external-secrets

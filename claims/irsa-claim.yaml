@@ -1,0 +1,8 @@
+apiVersion: vma.believe.com/v1alpha1
+kind: IRSA
+metadata:
+  name: test-irsa
+spec:
+  serviceAccountName: test
+  resourceConfig:
+    providerRef: irsa-providerconfig

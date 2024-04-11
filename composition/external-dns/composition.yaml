@@ -53,7 +53,7 @@ spec:
         - type: FromCompositeFieldPath
           fromFieldPath: spec.zoneId
           toFieldPath: spec.resourceArn
-    - name: external-dns-chart
+    - name: helm-release
       base:
         apiVersion: vma.believe.com/v1alpha1
         kind: xHelmRelease

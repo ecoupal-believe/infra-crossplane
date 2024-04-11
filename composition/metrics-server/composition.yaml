@@ -2,7 +2,6 @@ apiVersion: apiextensions.crossplane.io/v1
 kind: Composition
 metadata:
   name: metrics-server.vma.believe.com
-  namespace: kube-system
 spec:
   compositeTypeRef:
     apiVersion: vma.believe.com/v1alpha1
@@ -14,7 +13,7 @@ spec:
           fromFieldPath: spec.resourceConfig
           toFieldPath: spec.resourceConfig
   resources:
-    - name: external-dns-chart
+    - name: helm-release
       base:
         apiVersion: vma.believe.com/v1alpha1
         kind: xHelmRelease
