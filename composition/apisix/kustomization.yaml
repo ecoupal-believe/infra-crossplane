@@ -3,5 +3,4 @@ kind: Kustomization
 namespace: crossplane-system
 resources:
   - definition.yaml
-  - standard.yaml
-  - logs.yaml
+  - composition.yaml

@@ -16,3 +16,4 @@ resources:
   - external-secrets
   - s3
   - gitlab-runner
+  - apisix

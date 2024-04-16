@@ -1,16 +1,27 @@
 apiVersion: apiextensions.crossplane.io/v1
 kind: Composition
 metadata:
-  name: standard.s3.vma.believe.com
+  name: logs.s3.vma.believe.com
   labels:
     vma.believe.com/provider: aws
-    s3.vma.believe.com/type: standard
+    s3.vma.believe.com/type: logs
 spec:
   compositeTypeRef:
     apiVersion: vma.believe.com/v1alpha1
     kind: xS3
   mode: Pipeline
   pipeline:
+    - step: environmentConfigs
+      functionRef:
+        name: function-environment-configs
+      input:
+        apiVersion: environmentconfigs.fn.crossplane.io/v1beta1
+        kind: Input
+        spec:
+          environmentConfigs:
+            - type: Reference
+              ref:
+                name: aws-config
     - step: render-templates
       functionRef:
         name: function-go-templating
@@ -108,7 +119,6 @@ spec:
                 bucketSelector:
                   matchControllerRef: true
             ---
-            {{ if ne $.observed.composite.resource.spec.resourceConfig.lifecyclePolicies nil }}
             apiVersion: s3.aws.upbound.io/v1beta1
             kind: BucketLifecycleConfiguration
             metadata:
@@ -123,13 +133,57 @@ spec:
               {{ end }}
               forProvider:
                 region: {{ .observed.composite.resource.spec.resourceConfig.region }}
-                rule:
-                  {{ range .observed.composite.resource.spec.resourceConfig.lifecyclePolicies }}
-                  {{ . | nindent 6 }}
-                  {{ end }}
+                rule: 
+                  - id: lb-logs
+                    status: Enabled
+                    expiration:
+                      - days: {{ .observed.composite.resource.spec.resourceConfig.expirationDays | toDecimal }}
                 bucketSelector:
                   matchControllerRef: true
-            {{ end }}
+            ---
+            {{ $bucketResourcePath:= print (dig "resources" "bucket" "resource" "status" "atProvider" "arn" "" $.observed) "/AWSLogs/" (index .context "apiextensions.crossplane.io/environment" "awsAccountID") "/*" }}
+            apiVersion: s3.aws.upbound.io/v1beta1
+            kind: BucketPolicy
+            metadata:
+              annotations:
+                gotemplating.fn.crossplane.io/composition-resource-name: bucket-policy
+                crossplane.io/external-name: {{ .observed.composite.resource.spec.resourceConfig.name }}
+            spec:
+              providerConfigRef:
+                name: {{ .observed.composite.resource.spec.resourceConfig.providerRef }}
+              forProvider:
+                region: {{ .observed.composite.resource.spec.resourceConfig.region }}
+                bucketSelector:
+                  matchControllerRef: true
+                policy: |
+                  {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                       {
+                          "Sid": "AWSLogDeliveryAclCheck",
+                          "Effect": "Allow",
+                          "Principal": {
+                              "Service": "delivery.logs.amazonaws.com"
+                          },
+                          "Action": "s3:GetBucketAcl",
+                          "Resource": "{{ dig "resources" "bucket" "resource" "status" "atProvider" "arn" "" $.observed }}"
+                      },
+                      {
+                        "Sid": "AWSLogDeliveryWrite",
+                        "Effect": "Allow",
+                        "Principal": {
+                            "Service": "delivery.logs.amazonaws.com"
+                        },
+                        "Action": "s3:PutObject",
+                        "Resource": "{{ $bucketResourcePath }}",
+                        "Condition": {
+                            "StringEquals": {
+                                "s3:x-amz-acl": "bucket-owner-full-control"
+                            }
+                        }
+                      }
+                    ]
+                  }
     - step: automatically-detect-ready-composed-resources
       functionRef:
         name: function-auto-ready

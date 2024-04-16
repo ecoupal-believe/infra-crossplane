@@ -54,7 +54,7 @@ spec:
                       filter:
                         - prefix: "project/"
                       expiration:
-                        - days: {{ .observed.composite.resource.spec.cacheConfiguration.expirationDays }}
+                        - days: {{ default 7 .observed.composite.resource.spec.cacheConfiguration.expirationDays }}
             ---
             apiVersion: vma.believe.com/v1alpha1
             kind: xIRSA
@@ -91,7 +91,7 @@ spec:
             kind: Release
             metadata:
               annotations:
-                gotemplating.fn.crossplane.io/composition-resource-name: {{ print $resourceName "-release" }}
+                gotemplating.fn.crossplane.io/composition-resource-name: release
                 crossplane.io/external-name: {{ $resourceName }}
             spec:
               providerConfigRef:
