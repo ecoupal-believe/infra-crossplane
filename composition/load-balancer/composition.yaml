@@ -33,7 +33,7 @@ spec:
             kind: xIRSA
             metadata:
               annotations:
-                gotemplating.fn.crossplane.io/composition-resource-name: {{ print $resourceName "-irsa" }}
+                gotemplating.fn.crossplane.io/composition-resource-name: irsa
                 crossplane.io/external-name: {{ $resourceName }}
             spec:
               serviceAccountName: {{ .observed.composite.resource.spec.serviceAccountName }}
@@ -47,23 +47,23 @@ spec:
             kind: xIAMPolicy
             metadata:
               annotations:
-                gotemplating.fn.crossplane.io/composition-resource-name: {{ print $resourceName "-policy" }}
+                gotemplating.fn.crossplane.io/composition-resource-name: policy
             spec:
               compositionSelector:
                 matchLabels:
                   vma.believe.com/provider: aws
                   iampolicies.vma.believe.com/policy-type: write
                   iampolicies.vma.believe.com/service: load-balancer
-              roleName: {{ (dig "resources" (print $resourceName "-irsa") "resource" "status" "roleName" "" $.observed ) }}
+              roleName: {{ dig "resources" "irsa" "resource" "status" "roleName" "" $.observed }}
               resourceConfig:
                 {{ .observed.composite.resource.spec.resourceConfig | toYaml | nindent 4 }}
             ---
-            {{ if ne (dig "resources" (print $resourceName "-irsa") "resource" "status" "roleArn" "" $.observed ) "" }}
+            {{ if ne (dig "resources" "irsa" "resource" "status" "roleArn" "" $.observed) "" }}
             apiVersion: helm.crossplane.io/v1beta1
             kind: Release
             metadata:
               annotations:
-                gotemplating.fn.crossplane.io/composition-resource-name: {{ print $resourceName "-release" }}
+                gotemplating.fn.crossplane.io/composition-resource-name: release
                 crossplane.io/external-name: {{ $resourceName }}
             spec:
               providerConfigRef:
@@ -81,9 +81,9 @@ spec:
                   clusterName: {{ index .context "apiextensions.crossplane.io/environment" "eksClusterName" }}
                   replicaCount: {{ .observed.composite.resource.spec.replicaCount }}
                   serviceAccount:
-                    name: {{ (dig "resources" (print $resourceName "-irsa") "resource" "status" "roleName" "" $.observed ) }}
+                    name: {{ dig "resources" "irsa" "resource" "status" "roleName" "" $.observed }}
                     annotations:
-                      eks.amazonaws.com/role-arn: {{ dig "resources" (print $resourceName "-irsa") "resource" "status" "roleArn" "" $.observed }}
+                      eks.amazonaws.com/role-arn: {{ dig "resources" "irsa" "resource" "status" "roleArn" "" $.observed }}
                   additionalLabels:
                     tags.datadoghq.com/env: {{ index .context "apiextensions.crossplane.io/environment" "env" }}
                     tags.datadoghq.com/service: aws-load-balancer-controller
