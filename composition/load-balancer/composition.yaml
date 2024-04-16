@@ -54,7 +54,6 @@ spec:
                   vma.believe.com/provider: aws
                   iampolicies.vma.believe.com/policy-type: write
                   iampolicies.vma.believe.com/service: load-balancer
-              resourceArn: {{ index .context "apiextensions.crossplane.io/environment" "eksClusterName" }}
               roleName: {{ (dig "resources" (print $resourceName "-irsa") "resource" "status" "roleName" "" $.observed ) }}
               resourceConfig:
                 {{ .observed.composite.resource.spec.resourceConfig | toYaml | nindent 4 }}

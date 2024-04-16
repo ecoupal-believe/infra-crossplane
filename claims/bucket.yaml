@@ -1,9 +1,19 @@
-apiVersion: s3.aws.upbound.io/v1beta1
-kind: Bucket
+apiVersion: vma.believe.com/v1alpha1
+kind: S3
 metadata:
   name: my-s3-bucket-1236548979
 spec:
-  forProvider:
-    region: eu-west-1
-  providerConfigRef:
-    name: irsa-providerconfig
+  resourceConfig:
+    name: my-s3-bucket-1236548979
+    region: "eu-west-1"
+    lifecyclePolicies:
+      - |
+        - id: cleanup
+          status: Enabled
+          filter:
+            - prefix: "project/"
+          expiration:
+            - days: 90
+    tags:
+      test: hello
+    providerRef: irsa-providerconfig

@@ -1,0 +1,85 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xgitlabrunners.vma.believe.com
+spec:
+  group: vma.believe.com
+  claimNames:
+    kind: GitlabRunner
+    plural: gitlabrunners
+  names:
+    kind: xGitlabRunner
+    plural: xgitlabrunners
+  versions:
+    - name: v1alpha1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              description: Defines the desired state of GitlabRunner
+              type: object
+              properties:
+                policyArns:
+                  type: array
+                  items:
+                    type: string
+                runnerName:
+                  type: string
+                gitlabUrl:
+                  type: string
+                runnerRegistrationToken:
+                  type: string
+                cacheConfiguration:
+                  type: object
+                  description: CacheConfiguration defines cache properties of this runner.
+                  properties:
+                    bucketName:
+                      type: string
+                    bucketRegion:
+                      type: string
+                    expirationDays:
+                      type: integer
+                  required:
+                    - bucketName
+                    - bucketRegion
+                additionalPolicies:
+                  type: object
+                  additionalProperties:
+                    description: Key-value map of policies to add to the IAM role.
+                    type: string
+                resourceConfig:
+                  type: object
+                  description: ResourceConfig defines general properties of this resource.
+                  properties:
+                    providerRef:
+                      type: string
+                      description: Which provider will be use to manage this resource
+                    deletionPolicy:
+                      type: string
+                      description: Defaults to Delete
+                      enum:
+                        - Delete
+                        - Orphan
+                    tags:
+                      type: object
+                      description: Key-value map of resource tags.
+                      additionalProperties:
+                        type: string
+              required:
+                - runnerName
+                - resourceConfig
+            status:
+              type: object
+              description: Defines the observed state of ExternalDNS
+              properties:
+                env:
+                  type: string
+                roleName:
+                  type: string
+                roleArn:
+                  type: string
+                policyArn:
+                  type: string

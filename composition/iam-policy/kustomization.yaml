@@ -5,3 +5,4 @@ resources:
   - route53-write.yaml
   - autoscaler-write.yaml
   - load-balancer-write.yaml
+  - s3-write.yaml

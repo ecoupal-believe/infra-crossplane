@@ -6,4 +6,3 @@ resources:
   - crossplane-provider-package.yaml
   - upbound-providerconfig.yaml
 #  - crossplane-helm-provider.yaml
-  -

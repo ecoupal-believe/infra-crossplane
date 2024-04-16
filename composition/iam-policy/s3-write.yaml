@@ -1,0 +1,96 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: write-s3.iampolicies.vma.believe.com
+  labels:
+    vma.believe.com/provider: aws
+    iampolicies.vma.believe.com/policy-type: write
+    iampolicies.vma.believe.com/service: s3
+spec:
+  compositeTypeRef:
+    apiVersion: vma.believe.com/v1alpha1
+    kind: xIAMPolicy
+  patchSets:
+    - name: common-fields
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.resourceConfig.deletionPolicy
+          toFieldPath: spec.deletionPolicy
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.resourceConfig.providerRef
+          toFieldPath: spec.providerConfigRef.name
+        - fromFieldPath: metadata.name
+          toFieldPath: metadata.name
+          transforms:
+            - type: string
+              string:
+                fmt: "policy-s3-write-%s"
+  resources:
+    - name: write-policy
+      base:
+        apiVersion: iam.aws.upbound.io/v1beta1
+        kind: Policy
+        spec:
+          deletionPolicy: Delete
+      patches:
+        - type: PatchSet
+          patchSetName: common-fields
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.resourceConfig.tags
+          toFieldPath: spec.forProvider.tags
+          policy:
+            mergeOptions:
+              keepMapValues: true
+        - type: ToCompositeFieldPath
+          fromFieldPath: status.atProvider.arn
+          toFieldPath: status.policyArn
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.labels[crossplane.io/claim-name]
+          toFieldPath: metadata.annotations[crossplane.io/external-name]
+          transforms:
+            - type: string
+              string:
+                fmt: "policy-s3-write-%s"
+        - type: CombineFromComposite
+          toFieldPath: spec.forProvider.policy
+          combine:
+            variables:
+              - fromFieldPath: spec.resourceArn
+              - fromFieldPath: spec.resourceArn
+            strategy: string
+            string:
+              fmt: |
+                {
+                  "Version": "2012-10-17",
+                  "Statement": [
+                    {
+                        "Action": "s3:*",
+                        "Effect": "Allow",
+                        "Resource": [
+                          "%s/*",
+                          "%s"
+                        ],
+                        "Sid": "VisualEditor0"
+                    }
+                  ]
+                }
+    - name: policy-attachment
+      base:
+        apiVersion: iam.aws.upbound.io/v1beta1
+        kind: RolePolicyAttachment
+        spec:
+          deletionPolicy: Delete
+          forProvider:
+            policyArnSelector:
+              matchControllerRef: true
+            roleSelector:
+              matchControllerRef: true
+      patches:
+        - type: PatchSet
+          patchSetName: common-fields
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.roleName
+          toFieldPath: spec.forProvider.role
+        - type: FromCompositeFieldPath
+          fromFieldPath: status.policyArn
+          toFieldPath: spec.forProvider.policyArn

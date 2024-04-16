@@ -14,3 +14,5 @@ resources:
   - metrics-server
   - load-balancer
   - external-secrets
+  - s3
+  - gitlab-runner

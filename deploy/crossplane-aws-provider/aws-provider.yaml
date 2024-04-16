@@ -37,3 +37,13 @@ spec:
   skipDependencyResolution: true
   runtimeConfigRef:
     name: irsa-controllerconfig
+---
+apiVersion: pkg.crossplane.io/v1
+kind: Provider
+metadata:
+  name: provider-aws-s3
+spec:
+  package: xpkg.upbound.io/upbound/provider-aws-s3:v1.2.1
+  skipDependencyResolution: true
+  runtimeConfigRef:
+    name: irsa-controllerconfig

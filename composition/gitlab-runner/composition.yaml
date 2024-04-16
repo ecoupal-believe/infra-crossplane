@@ -1,0 +1,217 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: gitlabrunners.vma.believe.com
+spec:
+  compositeTypeRef:
+    apiVersion: vma.believe.com/v1alpha1
+    kind: xGitlabRunner
+  mode: Pipeline
+  pipeline:
+    - step: environmentConfigs
+      functionRef:
+        name: function-environment-configs
+      input:
+        apiVersion: environmentconfigs.fn.crossplane.io/v1beta1
+        kind: Input
+        spec:
+          environmentConfigs:
+            - type: Reference
+              ref:
+                name: aws-config
+    - step: render-templates
+      functionRef:
+        name: function-go-templating
+      input:
+        apiVersion: gotemplating.fn.crossplane.io/v1beta1
+        kind: GoTemplate
+        source: Inline
+        inline:
+          template: |
+            {{ $resourceName:= dig "composite" "resource" "metadata" "labels" "crossplane.io/claim-name" "" $.observed }}
+            apiVersion: vma.believe.com/v1alpha1
+            kind: xS3
+            metadata:
+              annotations:
+                gotemplating.fn.crossplane.io/composition-resource-name: bucket
+                crossplane.io/external-name: {{ $resourceName }}
+            spec:
+              compositionSelector:
+                matchLabels:
+                  vma.believe.com/provider: aws
+                  s3.vma.believe.com/type: standard
+              resourceConfig:
+                providerRef: {{ .observed.composite.resource.spec.resourceConfig.providerRef }}
+                {{ if ne $.observed.composite.resource.spec.resourceConfig.deletionPolicy nil }}
+                deletionPolicy: {{ .observed.composite.resource.spec.resourceConfig.deletionPolicy }}
+                {{ end }}
+                name: {{ .observed.composite.resource.spec.cacheConfiguration.bucketName }}
+                region: {{ .observed.composite.resource.spec.cacheConfiguration.bucketRegion }}
+                lifecyclePolicies:
+                  - |
+                    - id: cleanup
+                      status: Enabled
+                      filter:
+                        - prefix: "project/"
+                      expiration:
+                        - days: {{ .observed.composite.resource.spec.cacheConfiguration.expirationDays }}
+            ---
+            apiVersion: vma.believe.com/v1alpha1
+            kind: xIRSA
+            metadata:
+              annotations:
+                gotemplating.fn.crossplane.io/composition-resource-name: irsa
+                crossplane.io/external-name: {{ $resourceName }}
+            spec:
+              serviceAccountName: {{ print .observed.composite.resource.spec.runnerName "-gitlab-runner" }}
+              resourceConfig:
+                {{ .observed.composite.resource.spec.resourceConfig | toYaml | nindent 4 }}
+            status:
+              roleName: {{ .desired.composite.resource.status.roleName }}
+              roleArn: {{ .desired.composite.resource.status.roleArn }}
+            ---
+            apiVersion: vma.believe.com/v1alpha1
+            kind: xIAMPolicy
+            metadata:
+              annotations:
+                gotemplating.fn.crossplane.io/composition-resource-name: policy
+            spec:
+              compositionSelector:
+                matchLabels:
+                  vma.believe.com/provider: aws
+                  iampolicies.vma.believe.com/policy-type: write
+                  iampolicies.vma.believe.com/service: s3  
+              resourceArn: {{ dig "resources" "bucket" "resource" "status" "bucketArn" "" $.observed }}
+              roleName: {{ dig "resources" "irsa" "resource" "status" "roleName" "" $.observed }}
+              resourceConfig:
+                {{ .observed.composite.resource.spec.resourceConfig | toYaml | nindent 4 }}
+            ---
+            {{ if ne (dig "resources" "irsa" "resource" "status" "roleArn" "" $.observed ) "" }}
+            apiVersion: helm.crossplane.io/v1beta1
+            kind: Release
+            metadata:
+              annotations:
+                gotemplating.fn.crossplane.io/composition-resource-name: {{ print $resourceName "-release" }}
+                crossplane.io/external-name: {{ $resourceName }}
+            spec:
+              providerConfigRef:
+                name:  helm-provider
+              {{ if ne $.observed.composite.resource.spec.resourceConfig.deletionPolicy nil }}
+              deletionPolicy: {{ .observed.composite.resource.spec.resourceConfig.deletionPolicy }}
+              {{ end }}
+              forProvider:
+                namespace: {{ dig "composite" "resource" "metadata" "labels" "crossplane.io/claim-namespace" "" $.observed }}
+                chart:
+                  name: gitlab-runner
+                  repository: https://charts.gitlab.io
+                  version: 0.49.2
+                values:
+                  logFormat: json
+                  gitlabUrl: {{ .observed.composite.resource.spec.gitlabUrl }}
+                  metrics:
+                    enabled: true
+                  service:
+                    enabled: true
+                  rbac:
+                    create: true
+                    rules:
+                      - apiGroups: [ "" ]
+                        resources: [ "pods" ]
+                        verbs: [ "list", "get", "watch", "create", "delete" ]
+                      - apiGroups: [ "" ]
+                        resources: [ "pods/exec" ]
+                        verbs: [ "create" ]
+                      - apiGroups: [ "" ]
+                        resources: [ "pods/log" ]
+                        verbs: [ "get" ]
+                      - apiGroups: [ "" ]
+                        resources: [ "pods/attach" ]
+                        verbs: [ "list", "get", "create", "delete", "update" ]
+                      - apiGroups: [ "" ]
+                        resources: [ "secrets" ]
+                        verbs: [ "list", "get", "create", "delete", "update" ]
+                      - apiGroups: [ "" ]
+                        resources: [ "configmaps" ]
+                        verbs: [ "list", "get", "create", "delete", "update" ]
+                    serviceAccountAnnotations:
+                      "eks.amazonaws.com/role-arn": {{ dig "resources" "irsa" "resource" "status" "roleArn" "" $.observed }}
+            
+                  runnerToken: {{ .observed.composite.resource.spec.runnerRegistrationToken }}
+            
+                  concurrent: 1
+            
+                  runners:
+                    serviceAccountName: {{ dig "resources" "irsa" "resource" "status" "roleName" "" $.observed }}
+                    config: |
+                      [[runners]]
+                        [runners.kubernetes]
+                          image = "ubuntu:18.04"
+                          namespace = "{{.Release.Namespace}}"
+                          privileged = true
+            
+                        [runners.kubernetes.node_selector]
+                          "node-role" = "runner"
+            
+                        [runners.kubernetes.node_tolerations]
+                          "node-role=runner" = "NoSchedule"
+            
+                        [runners.cache]
+                          Type = "s3"
+                          Shared = true
+            
+                          [runners.cache.s3]
+                            BucketName = "{{ dig "resources" "bucket" "resource" "status" "bucketName" "" $.observed }}"
+                            BucketLocation = "{{ .observed.composite.resource.spec.cacheConfiguration.bucketRegion }}"
+                            ServerAddress = "s3.amazonaws.com"
+            
+                  nodeSelector:
+                    node-role: runner
+            
+                  tolerations:
+                    - effect: NoSchedule
+                      key: node-role
+                      operator: Equal
+                      value: runner
+            
+                  deploymentLabels:
+                    tags.datadoghq.com/env: {{ index .context "apiextensions.crossplane.io/environment" "env" }}
+                    tags.datadoghq.com/service: {{ .observed.composite.resource.spec.runnerName }}
+            
+                  podLabels:
+                    tags.datadoghq.com/env: {{ index .context "apiextensions.crossplane.io/environment" "env" }}
+                    tags.datadoghq.com/service: {{ .observed.composite.resource.spec.runnerName }}
+            
+                  podAnnotations:
+                    ad.datadoghq.com/{{ .observed.composite.resource.spec.runnerName }}.checks: |
+                      {
+                        "gitlab": {
+                          "instances": [
+                            {
+                              "gitlab_url": "http://%%host%%/", 
+                              "openmetrics_endpoint": "http://%%host%%:9252/metrics"
+                            }
+                          ]
+                        }
+                      }
+                    ad.datadoghq.com/{{ .observed.composite.resource.spec.runnerName }}.logs: '[{"source": "gitlab"}]'
+            {{ end }}
+            ---
+            {{- range $k, $v := .observed.composite.resource.spec.additionalPolicies }}
+            ---
+            apiVersion: iam.aws.upbound.io/v1beta1
+            kind: RolePolicyAttachment
+            metadata:
+              name: {{ print $resourceName "-"  $k }}
+              annotations:
+                gotemplating.fn.crossplane.io/composition-resource-name: {{ print "policy-" $k }}
+            spec:
+              deletionPolicy: Delete
+              providerConfigRef:
+                name: {{ $.observed.composite.resource.spec.resourceConfig.providerRef }}
+              forProvider:
+                role: {{ dig "resources" "irsa" "resource" "status" "roleName" "" $.observed }}
+                policyArn: {{ $v }}
+            {{ end }}
+    - step: automatically-detect-ready-composed-resources
+      functionRef:
+        name: function-auto-ready
