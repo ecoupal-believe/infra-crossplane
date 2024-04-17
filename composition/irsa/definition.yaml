@@ -22,10 +22,6 @@ spec:
             spec:
               type: object
               properties:
-                policyArns:
-                  type: array
-                  items:
-                    type: string
                 serviceAccountName:
                   type: string
                 resourceConfig:

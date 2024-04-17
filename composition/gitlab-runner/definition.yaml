@@ -22,10 +22,6 @@ spec:
               description: Defines the desired state of GitlabRunner
               type: object
               properties:
-                policyArns:
-                  type: array
-                  items:
-                    type: string
                 runnerName:
                   type: string
                 gitlabUrl:

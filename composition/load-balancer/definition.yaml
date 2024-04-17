@@ -22,10 +22,6 @@ spec:
               description: Defines the desired state of LoadBalancer helm release
               type: object
               properties:
-                policyArns:
-                  type: array
-                  items:
-                    type: string
                 serviceAccountName:
                   type: string
                 replicaCount:
