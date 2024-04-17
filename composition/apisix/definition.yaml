@@ -48,6 +48,25 @@ spec:
                     - bucketName
                     - bucketPrefix
                     - bucketRegion
+                customPlugins:
+                  type: array
+                  description: Defines custom plugins, the configmap need to be created externally.
+                  items:
+                    type: object
+                    properties:
+                      pluginName:
+                        type: string
+                      configMapName:
+                        type: string
+                      configMapKey:
+                        type: string
+                      mountPath:
+                        type: string
+                    required:
+                      - pluginName
+                      - configMapName
+                      - configMapKey
+                      - mountPath
                 resourceConfig:
                   type: object
                   description: ResourceConfig defines general properties of this resource.

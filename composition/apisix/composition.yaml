@@ -138,21 +138,19 @@ spec:
                       tag: [[ .observed.composite.resource.spec.ingressControllerVersion ]]
                     [[ end ]]
                   
+                  [[ if ne $.observed.composite.resource.spec.customPlugins nil ]]
                   customPlugins:
                     enabled: true
                     plugins:
-                      - name: custom-openid-connect
+                    [[- range .observed.composite.resource.spec.customPlugins  ]]
+                      - name: [[ .pluginName ]]
                         configMap:
-                          name: custom-openid-connect-plugin
+                          name: [[ .configMapName ]]
                           mounts:
-                            - key: custom-openid-connect.lua
-                              path: /opts/custom_plugins/apisix/plugins/custom-openid-connect.lua
-                      - name: custom-datadog
-                        configMap:
-                          name: custom-datadog-plugin
-                          mounts:
-                            - key: custom-datadog.lua
-                              path: /opts/custom_plugins/apisix/plugins/custom-datadog.lua
+                            - key: [[ .configMapKey ]]
+                              path: [[ .mountPath ]]
+                    [[ end ]]
+                  [[ end ]]
                   
                   configurationSnippet:
                     httpStart: |

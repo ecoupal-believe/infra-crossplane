@@ -12,5 +12,14 @@ spec:
     bucketRetention: 365
     bucketPrefix: apisix-access-logs
     bucketRegion: eu-west-1
+  customPlugins:
+  - pluginName: custom-openid-connect
+    configMapName: custom-openid-connect-plugin
+    configMapKey: custom-openid-connect.lua
+    mountPath: /opts/custom_plugins/apisix/plugins/custom-openid-connect.lua
+  - pluginName: custom-datadog-plugin
+    configMapName: custom-datadog-plugin
+    configMapKey: custom-datadog.lua
+    mountPath: /opts/custom_plugins/apisix/plugins/custom-datadog.lua
   resourceConfig:
     providerRef: irsa-providerconfig
