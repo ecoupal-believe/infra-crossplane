@@ -3,10 +3,16 @@ kind: DeploymentRuntimeConfig
 metadata:
   name: irsa-controllerconfig
 spec:
-  serviceAccountTemplate:
-    metadata:
-      annotations:
-        eks.amazonaws.com/role-arn: arn:aws:iam::013969616035:role/crossplane-aws-provider
+  deploymentTemplate:
+    spec:
+      selector: {}
+      template:
+        spec:
+          serviceAccountName: crossplane-provider-aws
+          containers:
+            - name: package-runtime
+              args:
+                - --debug
 ---
 apiVersion: pkg.crossplane.io/v1
 kind: Provider

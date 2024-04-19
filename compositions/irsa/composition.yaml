@@ -29,25 +29,6 @@ spec:
             mergeOptions:
               keepMapValues: true
   resources:
-    - name: eks-datasource
-      base:
-        apiVersion: vma.believe.com/v1alpha1
-        kind: xEKSDatasource
-        compositionSelector:
-          matchLabels:
-            vma.believe.com/provider: aws
-            eks.vma.believe.com/policy-type: read
-            eks.vma.believe.com/service: eks
-      patches:
-        - type: FromEnvironmentFieldPath
-          fromFieldPath: eksClusterName
-          toFieldPath: spec.clusterName
-        - type: FromCompositeFieldPath
-          fromFieldPath: spec.resourceConfig.providerRef
-          toFieldPath: spec.resourceConfig.providerRef
-        - type: ToCompositeFieldPath
-          fromFieldPath: status.oidcProviderUrl
-          toFieldPath: status.oidcProviderUrl
     - name: iam-role
       base:
         apiVersion: iam.aws.upbound.io/v1beta1
@@ -69,8 +50,8 @@ spec:
           toFieldPath: status.awsAccountID
           policy:
             fromFieldPath: Required
-        - type: FromCompositeFieldPath
-          fromFieldPath: status.oidcProviderUrl
+        - type: FromEnvironmentFieldPath
+          fromFieldPath: oidcProviderUrl
           toFieldPath: metadata.annotations[crossplane.io/oidc-provider-url]
         - type: ToCompositeFieldPath
           fromFieldPath: status.atProvider.arn

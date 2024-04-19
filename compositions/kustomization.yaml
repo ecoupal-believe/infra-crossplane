@@ -17,3 +17,4 @@ resources:
   - s3
   - gitlab-runner
   - apisix
+#  - application

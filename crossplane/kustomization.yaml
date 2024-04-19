@@ -1,8 +1,13 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-namespace: flux-system
+namespace: crossplane-system
 resources:
-  - crossplane-helmrelease.yaml
-  - crossplane-provider-package.yaml
-  - upbound-providerconfig.yaml
-#  - crossplane-helm-provider.yaml
+  - crossplane-core.yaml
+  - crossplane-aws-provider.yaml
+  - aws-providerconfig.yaml
+  - crossplane-helm-provider.yaml
+  - helm-providerconfig.yaml
+  - crossplane-kubernetes-provider.yaml
+  - kubernetes-providerconfig.yaml
+  - composite-functions.yaml
+  - compositions.yaml
