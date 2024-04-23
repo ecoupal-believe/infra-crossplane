@@ -54,6 +54,9 @@ spec:
           fromFieldPath: oidcProviderUrl
           toFieldPath: metadata.annotations[crossplane.io/oidc-provider-url]
         - type: ToCompositeFieldPath
+          fromFieldPath: metadata.annotations[crossplane.io/oidc-provider-url]
+          toFieldPath: status.oidcProviderUrl
+        - type: ToCompositeFieldPath
           fromFieldPath: status.atProvider.arn
           toFieldPath: status.roleArn
         - type: ToCompositeFieldPath

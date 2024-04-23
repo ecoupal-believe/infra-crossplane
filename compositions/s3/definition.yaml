@@ -48,6 +48,11 @@ spec:
                       enum:
                         - Delete
                         - Orphan
+                    managementPolicies:
+                      type: array
+                      description:
+                      items:
+                        type: string
                     tags:
                       type: object
                       description: Key-value map of resource tags.

@@ -1,0 +1,103 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: xs3irsas.vma.believe.com
+spec:
+  compositeTypeRef:
+    apiVersion: vma.believe.com/v1alpha1
+    kind: xS3IRSA
+  mode: Pipeline
+  pipeline:
+    - step: render-templates
+      functionRef:
+        name: function-go-templating
+      input:
+        apiVersion: gotemplating.fn.crossplane.io/v1beta1
+        kind: GoTemplate
+        source: Inline
+        inline:
+          template: |
+            {{ $observedResource:= .observed.composite.resource }}
+            {{ $resourceName:= dig "metadata" "labels" "crossplane.io/claim-name" "" $observedResource }}
+            apiVersion: vma.believe.com/v1alpha1
+            kind: xS3
+            metadata:
+              annotations:
+                gotemplating.fn.crossplane.io/composition-resource-name: bucket
+                crossplane.io/external-name: {{ $observedResource.spec.resourceConfig.bucketName }}
+            spec:
+              compositionSelector:
+                matchLabels:
+                  vma.believe.com/provider: aws
+                  s3.vma.believe.com/type: standard
+              resourceConfig:
+                providerRef: {{ $observedResource.spec.resourceConfig.providerRef }}
+                {{ if ne $observedResource.spec.resourceConfig.deletionPolicy nil }}
+                deletionPolicy: {{ $observedResource.spec.resourceConfig.deletionPolicy }}
+                {{ end }}
+                managementPolicies:
+                  - Observe
+                name: {{ $observedResource.spec.resourceConfig.bucketName }}
+                region: {{ $observedResource.spec.resourceConfig.bucketRegion }}
+                {{ if ne $observedResource.spec.resourceConfig.expirationDays nil }}
+                expirationDays: {{ $observedResource.spec.resourceConfig.expirationDays }}
+                {{ end }}
+            ---
+            apiVersion: vma.believe.com/v1alpha1
+            kind: xIRSA
+            metadata:
+              annotations:
+                gotemplating.fn.crossplane.io/composition-resource-name: irsa
+                crossplane.io/external-name: {{ $resourceName }}
+            spec:
+              serviceAccountName: {{ $resourceName }}
+              resourceConfig:
+                providerRef: {{ $observedResource.spec.resourceConfig.providerRef }}
+                {{ if ne $observedResource.spec.resourceConfig.deletionPolicy nil }}
+                deletionPolicy: {{ $observedResource.spec.resourceConfig.deletionPolicy }}
+                {{ end }}
+            ---
+            apiVersion: vma.believe.com/v1alpha1
+            kind: xIAMPolicy
+            metadata:
+              annotations:
+                gotemplating.fn.crossplane.io/composition-resource-name: policy
+            spec:
+              compositionSelector:
+                matchLabels:
+                  vma.believe.com/provider: aws
+                  iampolicies.vma.believe.com/policy-type: write
+                  iampolicies.vma.believe.com/service: s3  
+              resourceArn: {{ dig "resources" "bucket" "resource" "status" "bucketArn" "" $.observed }}
+              roleName: {{ dig "resources" "irsa" "resource" "status" "roleName" "" $.observed }}
+              resourceConfig:
+                providerRef: {{ $observedResource.spec.resourceConfig.providerRef }}
+                {{ if ne $observedResource.spec.resourceConfig.deletionPolicy nil }}
+                deletionPolicy: {{ $observedResource.spec.resourceConfig.deletionPolicy }}
+                {{ end }}
+            ---
+            {{ if ne (dig "resources" "irsa" "resource" "status" "roleArn" "" $.observed) "" }}
+            apiVersion: kubernetes.crossplane.io/v1alpha2
+            kind: Object
+            metadata:
+              name: {{ $resourceName }}
+              annotations:
+                gotemplating.fn.crossplane.io/composition-resource-name: service-account
+            spec:
+              providerConfigRef:
+                name: kubernetes-provider
+              {{ if ne $observedResource.spec.resourceConfig.deletionPolicy nil }}
+              deletionPolicy: {{ $observedResource.spec.resourceConfig.deletionPolicy }}
+              {{ end }}
+              forProvider:
+                manifest:
+                  apiVersion: v1
+                  kind: ServiceAccount
+                  metadata:
+                    namespace: {{ dig "metadata" "labels" "crossplane.io/claim-namespace" "" $observedResource }}
+                    annotations:
+                      eks.amazonaws.com/role-arn: {{ dig "resources" "irsa" "resource" "status" "roleArn" "" $.observed }}
+            {{ end }}
+    - step: automatically-detect-ready-composed-resources
+      functionRef:
+        name: function-auto-ready

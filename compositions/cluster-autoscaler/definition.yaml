@@ -56,15 +56,3 @@ spec:
               required:
                 - serviceAccountName
                 - resourceConfig
-            status:
-              type: object
-              description: Defines the observed state of ExternalDNS
-              properties:
-                env:
-                  type: string
-                roleName:
-                  type: string
-                roleArn:
-                  type: string
-                policyArn:
-                  type: string

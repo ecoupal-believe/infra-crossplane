@@ -50,6 +50,9 @@ spec:
                 [[ end ]]
                 name: [[ .observed.composite.resource.spec.logConfiguration.bucketName ]]
                 region: [[ .observed.composite.resource.spec.logConfiguration.bucketRegion ]]
+                [[ if ne $.observed.composite.resource.spec.resourceConfig.bucketRetention nil ]]
+                expirationDays: [[ .observed.composite.resource.spec.logConfiguration.bucketRetention ]]
+                [[ end ]]
             ---
             [[ if ne (dig "resources" "bucket" "resource" "status" "bucketArn" "" $.observed) "" ]]
             apiVersion: helm.crossplane.io/v1beta1

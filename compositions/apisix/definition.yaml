@@ -89,9 +89,3 @@ spec:
                     - providerRef
               required:
                 - resourceConfig
-            status:
-              type: object
-              description: Defines the observed state of Apisix
-              properties:
-                env:
-                  type: string

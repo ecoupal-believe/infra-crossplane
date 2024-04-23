@@ -39,9 +39,6 @@ spec:
               serviceAccountName: {{ .observed.composite.resource.spec.serviceAccountName }}
               resourceConfig:
                 {{ .observed.composite.resource.spec.resourceConfig | toYaml | nindent 4 }}
-            status:
-              roleName: {{ .desired.composite.resource.status.roleName }}
-              roleArn: {{ .desired.composite.resource.status.roleArn }}
             ---
             apiVersion: vma.believe.com/v1alpha1
             kind: xIAMPolicy
@@ -59,7 +56,7 @@ spec:
               resourceConfig:
                 {{ .observed.composite.resource.spec.resourceConfig | toYaml | nindent 4 }}
             ---
-            {{ if ne (dig "resources" irsa" "resource" "status" "roleArn" "" $.observed) "" }}
+            {{ if ne (dig "resources" "irsa" "resource" "status" "roleArn" "" $.observed) "" }}
             apiVersion: helm.crossplane.io/v1beta1
             kind: Release
             metadata:

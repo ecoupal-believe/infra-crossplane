@@ -66,9 +66,6 @@ spec:
               serviceAccountName: {{ print .observed.composite.resource.spec.runnerName "-gitlab-runner" }}
               resourceConfig:
                 {{ .observed.composite.resource.spec.resourceConfig | toYaml | nindent 4 }}
-            status:
-              roleName: {{ .desired.composite.resource.status.roleName }}
-              roleArn: {{ .desired.composite.resource.status.roleArn }}
             ---
             apiVersion: vma.believe.com/v1alpha1
             kind: xIAMPolicy

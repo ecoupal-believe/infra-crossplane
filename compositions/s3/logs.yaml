@@ -43,6 +43,9 @@ spec:
               {{ if ne $.observed.composite.resource.spec.resourceConfig.deletionPolicy nil }}
               deletionPolicy: {{ .observed.composite.resource.spec.resourceConfig.deletionPolicy }}
               {{ end }}
+              {{ if ne $.observed.composite.resource.spec.resourceConfig.managementPolicies nil }}
+              managementPolicies: {{ $.observed.composite.resource.spec.resourceConfig.managementPolicies }}
+              {{ end }}
               forProvider:
                 region: {{ .observed.composite.resource.spec.resourceConfig.region }}
                 forceDestroy: {{ default false .observed.composite.resource.spec.forceDestroy }}
@@ -73,6 +76,9 @@ spec:
               {{ if ne $.observed.composite.resource.spec.resourceConfig.deletionPolicy nil }}
               deletionPolicy: {{ .observed.composite.resource.spec.resourceConfig.deletionPolicy }}
               {{ end }}
+              {{ if ne $.observed.composite.resource.spec.resourceConfig.managementPolicies nil }}
+              managementPolicies: {{ $.observed.composite.resource.spec.resourceConfig.managementPolicies }}
+              {{ end }}
               forProvider:
                 blockPublicAcls: true
                 blockPublicPolicy: true
@@ -94,6 +100,9 @@ spec:
               {{ if ne $.observed.composite.resource.spec.resourceConfig.deletionPolicy nil }}
               deletionPolicy: {{ .observed.composite.resource.spec.resourceConfig.deletionPolicy }}
               {{ end }}
+              {{ if ne $.observed.composite.resource.spec.resourceConfig.managementPolicies nil }}
+              managementPolicies: {{ $.observed.composite.resource.spec.resourceConfig.managementPolicies }}
+              {{ end }}
               forProvider:
                 rule:
                 - objectOwnership: BucketOwnerPreferred
@@ -113,17 +122,21 @@ spec:
               {{ if ne $.observed.composite.resource.spec.resourceConfig.deletionPolicy nil }}
               deletionPolicy: {{ .observed.composite.resource.spec.resourceConfig.deletionPolicy }}
               {{ end }}
+              {{ if ne $.observed.composite.resource.spec.resourceConfig.managementPolicies nil }}
+              managementPolicies: {{ $.observed.composite.resource.spec.resourceConfig.managementPolicies }}
+              {{ end }}
               forProvider:
                 region: {{ .observed.composite.resource.spec.resourceConfig.region }}
                 acl: private
                 bucketSelector:
                   matchControllerRef: true
             ---
+            {{ if ne $.observed.composite.resource.spec.resourceConfig.expirationDays nil }}
             apiVersion: s3.aws.upbound.io/v1beta1
             kind: BucketLifecycleConfiguration
             metadata:
               annotations:
-                gotemplating.fn.crossplane.io/composition-resource-name: lifecycle
+                gotemplating.fn.crossplane.io/composition-resource-name: expiration-lifecycle
                 crossplane.io/external-name: {{ .observed.composite.resource.spec.resourceConfig.name }}
             spec:
               providerConfigRef:
@@ -131,15 +144,19 @@ spec:
               {{ if ne $.observed.composite.resource.spec.resourceConfig.deletionPolicy nil }}
               deletionPolicy: {{ .observed.composite.resource.spec.resourceConfig.deletionPolicy }}
               {{ end }}
+              {{ if ne $.observed.composite.resource.spec.resourceConfig.managementPolicies nil }}
+              managementPolicies: {{ $.observed.composite.resource.spec.resourceConfig.managementPolicies }}
+              {{ end }}
               forProvider:
                 region: {{ .observed.composite.resource.spec.resourceConfig.region }}
                 rule: 
-                  - id: lb-logs
+                  - id: clean-logs
                     status: Enabled
                     expiration:
                       - days: {{ .observed.composite.resource.spec.resourceConfig.expirationDays | toDecimal }}
                 bucketSelector:
                   matchControllerRef: true
+            {{ end }}
             ---
             {{ $bucketResourcePath:= print (dig "resources" "bucket" "resource" "status" "atProvider" "arn" "" $.observed) "/AWSLogs/" (index .context "apiextensions.crossplane.io/environment" "awsAccountID") "/*" }}
             apiVersion: s3.aws.upbound.io/v1beta1
@@ -151,6 +168,12 @@ spec:
             spec:
               providerConfigRef:
                 name: {{ .observed.composite.resource.spec.resourceConfig.providerRef }}
+              {{ if ne $.observed.composite.resource.spec.resourceConfig.deletionPolicy nil }}
+              deletionPolicy: {{ .observed.composite.resource.spec.resourceConfig.deletionPolicy }}
+              {{ end }}
+              {{ if ne $.observed.composite.resource.spec.resourceConfig.managementPolicies nil }}
+              managementPolicies: {{ $.observed.composite.resource.spec.resourceConfig.managementPolicies }}
+              {{ end }}
               forProvider:
                 region: {{ .observed.composite.resource.spec.resourceConfig.region }}
                 bucketSelector:
