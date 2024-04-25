@@ -1,0 +1,5 @@
+apiVersion: vma.believe.com/v1alpha1
+kind: MetricsServer
+metadata:
+  name: metrics-server-test
+spec: {}

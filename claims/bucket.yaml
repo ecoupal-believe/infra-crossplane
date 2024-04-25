@@ -1,0 +1,19 @@
+apiVersion: vma.believe.com/v1alpha1
+kind: S3
+metadata:
+  name: my-s3-bucket-1236548979
+spec:
+  resourceConfig:
+    name: my-s3-bucket-1236548979
+    region: "eu-west-1"
+    lifecyclePolicies:
+      - |
+        - id: cleanup
+          status: Enabled
+          filter:
+            - prefix: "project/"
+          expiration:
+            - days: 90
+    tags:
+      test: hello
+    providerRef: irsa-providerconfig

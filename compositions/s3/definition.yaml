@@ -1,0 +1,74 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xs3.vma.believe.com
+spec:
+  claimNames:
+    kind: S3
+    plural: s3
+  group: vma.believe.com
+  names:
+    kind: xS3
+    plural: xs3
+  versions:
+    - name: v1alpha1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          description: The Schema for the s3 API
+          properties:
+            spec:
+              type: object
+              properties:
+                resourceConfig:
+                  type: object
+                  description: ResourceConfig defines general properties of this resource.
+                  properties:
+                    name:
+                      type: string
+                    region:
+                      type: string
+                    expirationDays:
+                      type: integer
+                    forceDestroy:
+                      type: boolean
+                      default: false
+                    lifecyclePolicies:
+                      type: array
+                      items:
+                        type: string
+                    providerRef:
+                      type: string
+                      description: Which provider will be use to manage this resource
+                    deletionPolicy:
+                      type: string
+                      description: Defaults to Delete
+                      enum:
+                        - Delete
+                        - Orphan
+                    managementPolicies:
+                      type: array
+                      description:
+                      items:
+                        type: string
+                    tags:
+                      type: object
+                      description: Key-value map of resource tags.
+                      additionalProperties:
+                        type: string
+                  required:
+                    - providerRef
+                    - name
+                    - region
+              required:
+                - resourceConfig
+            status:
+              type: object
+              description: Defines the observed state of S3
+              properties:
+                bucketName:
+                  type: string
+                bucketArn:
+                  type: string

@@ -1,0 +1,54 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xeksdatasources.vma.believe.com
+spec:
+  group: vma.believe.com
+  names:
+    kind: xEKSDatasource
+    plural: xeksdatasources
+  versions:
+    - name: v1alpha1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          description: The Schema for the EKS datasource API
+          properties:
+            spec:
+              type: object
+              properties:
+                clusterName:
+                  type: string
+                resourceConfig:
+                  type: object
+                  description: ResourceConfig defines general properties of this resource.
+                  properties:
+                    providerRef:
+                      type: string
+                      description: Which provider will be use to manage this resource
+                  required:
+                    - providerRef
+              required:
+                - clusterName
+                - resourceConfig
+            status:
+              type: object
+              description: Defines the observed state of the EKS datasource.
+              properties:
+                oidcProviderUrl:
+                  type: string
+                clusterName:
+                  type: string
+                roleArn:
+                  type: string
+                eksArn:
+                  type: string
+                endpoint:
+                  type: string
+                version:
+                  type: string
+
+
+

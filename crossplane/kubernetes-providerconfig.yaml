@@ -1,0 +1,14 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta1
+kind: Kustomization
+metadata:
+  name: kubernetes-providerconfig
+spec:
+  dependsOn:
+    - name: crossplane-kubernetes-provider
+  interval: 30s
+  path: ../deploy/kubernetes-providerconfig
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: crossplane-sync
+  timeout: 2m

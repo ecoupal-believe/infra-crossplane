@@ -1,0 +1,9 @@
+apiVersion: vma.believe.com/v1alpha1
+kind: S3IRSA
+metadata:
+  name: service-test
+spec:
+  resourceConfig:
+    bucketName: my-s3-bucket-1236548979
+    bucketRegion: "eu-west-1"
+    providerRef: irsa-providerconfig

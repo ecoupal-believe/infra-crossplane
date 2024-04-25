@@ -1,0 +1,58 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xclusterautoscalers.vma.believe.com
+spec:
+  group: vma.believe.com
+  claimNames:
+    kind: ClusterAutoscaler
+    plural: clusterautoscalers
+  names:
+    kind: xClusterAutoscaler
+    plural: xclusterautoscalers
+  versions:
+    - name: v1alpha1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              description: Defines the desired state of ExternalDNS
+              type: object
+              properties:
+                serviceAccountName:
+                  type: string
+                autoscalingGroups:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      minSize:
+                        type: integer
+                      maxSize:
+                        type: integer
+                resourceConfig:
+                  type: object
+                  description: ResourceConfig defines general properties of this resource.
+                  properties:
+                    providerRef:
+                      type: string
+                      description: Which provider will be use to manage this resource
+                    deletionPolicy:
+                      type: string
+                      description: Defaults to Delete
+                      enum:
+                        - Delete
+                        - Orphan
+                    tags:
+                      type: object
+                      description: Key-value map of resource tags.
+                      additionalProperties:
+                        type: string
+              required:
+                - serviceAccountName
+                - resourceConfig

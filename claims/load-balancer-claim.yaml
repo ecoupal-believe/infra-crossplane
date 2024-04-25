@@ -1,0 +1,9 @@
+apiVersion: vma.believe.com/v1alpha1
+kind: LoadBalancer
+metadata:
+  name: load-balancer-test
+spec:
+  serviceAccountName: load-balancer-test
+  replicaCount: 1
+  resourceConfig:
+    providerRef: irsa-providerconfig

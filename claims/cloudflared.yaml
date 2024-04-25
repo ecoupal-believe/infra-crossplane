@@ -1,0 +1,12 @@
+apiVersion: vma.believe.com/v1alpha1
+kind: Cloudflared
+metadata:
+  name: cloudflared-test
+spec:
+  accountId: xxx
+  tunnelId: xxx
+  tunnelName: xxx
+  tunnelSecret: xxx
+  ingresses:
+    - hostname: lab-bakojava.believedigital.com
+      service: http://apisix-gateway.ingress-apisix.svc

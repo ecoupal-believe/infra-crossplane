@@ -1,0 +1,17 @@
+apiVersion: vma.believe.com/v1alpha1
+kind: GitlabRunner
+metadata:
+  name: frontend-runner-test
+spec:
+  runnerName: frontend-test
+  gitlabUrl: https://codefactory.blvs.io
+  runnerRegistrationToken: XXXX
+  cacheConfiguration:
+    bucketName: frontend-runner-test
+    bucketRegion: eu-west-1
+    expirationDays: 8
+  additionalPolicies:
+    use-ecr: arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPowerUser
+    use-code-artifact: arn:aws:iam::aws:policy/AWSCodeArtifactReadOnlyAccess
+  resourceConfig:
+    providerRef: irsa-providerconfig

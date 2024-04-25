@@ -1,18 +1,55 @@
-apiVersion: aws.upbound.io/v1beta1
-kind: ProviderConfig
+apiVersion: pkg.crossplane.io/v1beta1
+kind: DeploymentRuntimeConfig
 metadata:
-  name: aws-config
+  name: irsa-controllerconfig
 spec:
-  credentials:
-    source: WebIdentity
-    webIdentity:
-      roleARN: arn:aws:iam::013969616035:role/crossplane-aws-provider
+  deploymentTemplate:
+    spec:
+      selector: {}
+      template:
+        spec:
+          serviceAccountName: crossplane-provider-aws
+          containers:
+            - name: package-runtime
+              args:
+                - --debug
 ---
 apiVersion: pkg.crossplane.io/v1
 kind: Provider
 metadata:
-  name: crossplane-provider-aws
+  name: provider-family-aws
 spec:
-  controllerConfigRef:
-    name: aws-config
-  package: xpkg.upbound.io/upbound/provider-aws-s3:0.47.2
+  package: xpkg.upbound.io/upbound/provider-family-aws:v1.2.1
+  skipDependencyResolution: true
+  runtimeConfigRef:
+    name: irsa-controllerconfig
+---
+apiVersion: pkg.crossplane.io/v1
+kind: Provider
+metadata:
+  name: provider-aws-iam
+spec:
+  package: xpkg.upbound.io/upbound/provider-aws-iam:v1.2.1
+  skipDependencyResolution: true
+  runtimeConfigRef:
+    name: irsa-controllerconfig
+---
+apiVersion: pkg.crossplane.io/v1
+kind: Provider
+metadata:
+  name: provider-aws-eks
+spec:
+  package: xpkg.upbound.io/upbound/provider-aws-eks:v1.2.1
+  skipDependencyResolution: true
+  runtimeConfigRef:
+    name: irsa-controllerconfig
+---
+apiVersion: pkg.crossplane.io/v1
+kind: Provider
+metadata:
+  name: provider-aws-s3
+spec:
+  package: xpkg.upbound.io/upbound/provider-aws-s3:v1.2.1
+  skipDependencyResolution: true
+  runtimeConfigRef:
+    name: irsa-controllerconfig

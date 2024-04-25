@@ -1,0 +1,31 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: metrics-server.vma.believe.com
+spec:
+  compositeTypeRef:
+    apiVersion: vma.believe.com/v1alpha1
+    kind: xMetricsServer
+  patchSets:
+    - name: common-fields-composition
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.resourceConfig
+          toFieldPath: spec.resourceConfig
+  resources:
+    - name: helm-release
+      base:
+        apiVersion: vma.believe.com/v1alpha1
+        kind: xHelmRelease
+        spec:
+          chartConfig:
+            name: metrics-server
+            repository: https://kubernetes-sigs.github.io/metrics-server
+            version: 3.11.0
+          values: |
+            image:
+              repository: public.ecr.aws/eks-distro/kubernetes-sigs/metrics-server
+              tag: v0.6.4-eks-1-28-latest
+      patches:
+        - type: PatchSet
+          patchSetName: common-fields-composition

@@ -1,0 +1,45 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xhelmreleases.vma.believe.com
+spec:
+  group: vma.believe.com
+  names:
+    kind: xHelmRelease
+    plural: xhelmreleases
+  versions:
+    - name: v1alpha1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          description: The Schema for the the helm release
+          properties:
+            spec:
+              type: object
+              description: Defines the desired state of a helm release
+              properties:
+                chartConfig:
+                  type: object
+                  description: chartConfig defines chart configuration
+                  properties:
+                    name:
+                      type: string
+                    repository:
+                      type: string
+                    version:
+                      type: string
+                resourceConfig:
+                  type: object
+                  description: ResourceConfig defines general properties of this resource.
+                  properties:
+                    deletionPolicy:
+                      type: string
+                      description: Defaults to Delete
+                      enum:
+                        - Delete
+                        - Orphan
+                values:
+                  type: string
+
