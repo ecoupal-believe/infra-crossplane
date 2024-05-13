@@ -1,12 +1,12 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1beta1
 kind: Kustomization
 metadata:
-  name: kubernetes-providerconfig
+  name: kafka-providerconfig
 spec:
   dependsOn:
-    - name: crossplane-kubernetes-provider
+    - name: crossplane-kafka-provider
   interval: 30s
-  path: ../deploy/kubernetes-providerconfig
+  path: ../deploy/kafka-providerconfig
   prune: true
   sourceRef:
     kind: GitRepository

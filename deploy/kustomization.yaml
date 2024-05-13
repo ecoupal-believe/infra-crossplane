@@ -5,5 +5,7 @@ resources:
   - crossplane-core
   - crossplane-gcp-provider
   - confluent-providerconfig
+  - crossplane-kafka-provider
+  - kafka-providerconfig
   - vma
 #  - crossplane-composite-functions

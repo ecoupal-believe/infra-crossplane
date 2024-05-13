@@ -1,0 +1,11 @@
+apiVersion: artifact.gcp.upbound.io/v1beta1
+kind: RegistryRepository
+metadata:
+  name: yt-pubsub-listener-service
+spec:
+  forProvider:
+    description: Registry for yt-pubsub-listener-service
+    format: DOCKER
+    location: europe-west1
+  providerConfigRef:
+    name: gcp

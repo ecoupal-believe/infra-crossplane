@@ -6,6 +6,7 @@ spec:
   dependsOn:
     - name: gcp-providerconfig
     - name: confluent-providerconfig
+    - name: kafka-providerconfig
   interval: 30s
   path: ../deploy/vma
   prune: true

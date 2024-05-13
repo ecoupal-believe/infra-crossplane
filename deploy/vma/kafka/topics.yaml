@@ -1,0 +1,40 @@
+apiVersion: topic.kafka.crossplane.io/v1alpha1
+kind: Topic
+metadata:
+  name: video-channel-commands
+  annotations:
+    crossplane.io/external-name: content_video-channel_commands
+spec:
+  forProvider:
+    replicationFactor: 3
+    partitions: 9
+    config:
+      retention.ms: "432000000"
+  providerConfigRef:
+    name: kafka-provider
+---
+#apiVersion: topic.kafka.crossplane.io/v1alpha1
+#kind: Topic
+#metadata:
+#  name: content_video-channel_commands-dlt
+#spec:
+#  forProvider:
+#    replicationFactor: 3
+#    partitions: 1
+#    config:
+#      retention.ms: 7776000000
+#  providerConfigRef:
+#    name: kafka-provider
+#---
+#apiVersion: topic.kafka.crossplane.io/v1alpha1
+#kind: Topic
+#metadata:
+#  name: content_video-channel_commands-retry
+#spec:
+#  forProvider:
+#    replicationFactor: 3
+#    partitions: 1
+#    config:
+#      retention.ms: 432000000
+#  providerConfigRef:
+#    name: kafka-provider

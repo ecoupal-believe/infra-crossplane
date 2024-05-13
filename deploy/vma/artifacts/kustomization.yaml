@@ -3,3 +3,4 @@ kind: Kustomization
 namespace: crossplane-system
 resources:
   - jira-sync-batch.yaml
+  - yt-pubsub-listener-service.yaml
