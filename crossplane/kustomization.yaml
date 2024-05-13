@@ -9,7 +9,8 @@ resources:
   - confluent-providerconfig.yaml
   - crossplane-kafka-provider.yaml
   - kafka-providerconfig.yaml
-  - vma.yaml
+  - vma-infra.yaml
+  - vma-apps.yaml
 #  - crossplane-helm-provider.yaml
 #  - helm-providerconfig.yaml
 #  - crossplane-kubernetes-provider.yaml
