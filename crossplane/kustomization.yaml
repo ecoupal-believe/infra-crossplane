@@ -5,8 +5,6 @@ resources:
   - crossplane-core.yaml
   - crossplane-gcp-provider.yaml
   - gcp-providerconfig.yaml
-#  - crossplane-aws-provider.yaml
-#  - aws-providerconfig.yaml
 #  - crossplane-helm-provider.yaml
 #  - helm-providerconfig.yaml
 #  - crossplane-kubernetes-provider.yaml

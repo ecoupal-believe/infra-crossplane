@@ -5,4 +5,4 @@ metadata:
 spec:
   credentials:
     source: InjectedIdentity
-  projectID: sbx-test-42
+  projectID: sbx-test-42-36fc
