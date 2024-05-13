@@ -1,0 +1,9 @@
+apiVersion: gcp.upbound.io/v1beta1
+kind: ProviderConfig
+metadata:
+  name: gcp
+  annotations:
+spec:
+  credentials:
+    source: InjectedIdentity
+  projectID: sbx-test-42

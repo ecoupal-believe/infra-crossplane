@@ -3,6 +3,7 @@ kind: Kustomization
 namespace: crossplane-system
 resources:
   - crossplane-core
+  - crossplane-gcp-provider
 #  - crossplane-composite-functions
 #  - crossplane-helm-provider
 #  - helm-providerconfig
