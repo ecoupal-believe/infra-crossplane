@@ -1,9 +1,0 @@
-apiVersion: vma.believe.com/v1alpha1
-kind: ExternalDNS
-metadata:
-  name: external-dns-test
-spec:
-  serviceAccountName: external-dns-test
-  zoneId: Z102066716WGLD5SEVD1Y
-  resourceConfig:
-    providerRef: irsa-providerconfig
