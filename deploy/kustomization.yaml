@@ -7,5 +7,6 @@ resources:
   - confluent-providerconfig
   - crossplane-kafka-provider
   - kafka-providerconfig
-  - vma
+  - vma-infra
+  - vma-apps
 #  - crossplane-composite-functions

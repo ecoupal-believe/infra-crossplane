@@ -1,0 +1,175 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: yt-pubsub-listener-service
+    component: service
+    tags.datadoghq.com/service: yt-pubsub-listener-service
+    use-kafka: "true"
+  name: yt-pubsub-listener-service
+spec:
+  ports:
+  - name: http
+    port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: yt-pubsub-listener-service
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    reloader.stakater.com/auto: "true"
+  labels:
+    app: yt-pubsub-listener-service
+    component: service
+    tags.datadoghq.com/service: yt-pubsub-listener-service
+    use-kafka: "true"
+  name: yt-pubsub-listener-service
+spec:
+  selector:
+    matchLabels:
+      app: yt-pubsub-listener-service
+  template:
+    metadata:
+      annotations:
+        ad.datadoghq.com/service.logs: |
+          [{"source": "java"}]
+        admission.datadoghq.com/java-lib.version: latest
+      labels:
+        admission.datadoghq.com/enabled: "true"
+        app: yt-pubsub-listener-service
+        component: service
+        tags.datadoghq.com/service: yt-pubsub-listener-service
+        use-kafka: "true"
+    spec:
+      containers:
+      - env:
+        - name: BELIEVE_YOUTUBE_PUBSUBHUBBUB_SUBSCRIPTION_CRON
+          value: 0 0 7 * * *
+        - name: MANAGEMENT_STATSD_METRICS_EXPORT_HOST
+          value: /var/run/datadog/dsd.socket
+        - name: MANAGEMENT_STATSD_METRICS_EXPORT_PROTOCOL
+          value: UDS_DATAGRAM
+        - name: MANAGEMENT_METRICS_TAGS_APPLICATION
+          value: ${spring.application.name}
+        - name: JAVA_TOOL_OPTIONS
+          value: -XX:MaxRAMPercentage=50 -XX:InitialRAMPercentage=50 -XX:MaxMetaspaceSize=150m
+            -Ddatadog.slf4j.simpleLogger.logFile=System.out -Ddatadog.slf4j.simpleLogger.dateTimeFormat='yyyy-MM-dd
+            HH:mm:ss.SSS'
+        - name: DD_DATA_STREAMS_ENABLED
+          value: "true"
+        envFrom:
+        - secretRef:
+            name: yt-pubsub-listener-service-secret
+        - secretRef:
+            name: mongodb-write-secret
+        - secretRef:
+            name: msk-secret
+        - configMapRef:
+            name: global-application-config
+        - configMapRef:
+            name: channel-query-urls
+        image: europe-west1-docker.pkg.dev/sbx-test-42-36fc/content-video/yt-pubsub-listener-service:latest
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /actuator/health/liveness
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 20
+          timeoutSeconds: 5
+        name: service
+        ports:
+        - containerPort: 8080
+          name: http
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /actuator/health/readiness
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 20
+          timeoutSeconds: 5
+        resources:
+          limits:
+            cpu: 1000m
+            memory: 1000Mi
+          requests:
+            cpu: 100m
+            memory: 1000Mi
+        startupProbe:
+          failureThreshold: 15
+          httpGet:
+            path: /actuator/health/liveness
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta1
+kind: ImagePolicy
+metadata:
+  labels:
+    app: yt-pubsub-listener-service
+    component: service
+    tags.datadoghq.com/service: yt-pubsub-listener-service
+    use-kafka: "true"
+  name: yt-pubsub-listener-service
+spec:
+  filterTags:
+    extract: $ts
+    pattern: ^(master-.*)_(?P<ts>.*)$
+  imageRepositoryRef:
+    name: yt-pubsub-listener-service
+  policy:
+    numerical:
+      order: asc
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta1
+kind: ImageRepository
+metadata:
+  labels:
+    app: yt-pubsub-listener-service
+    component: service
+    tags.datadoghq.com/service: yt-pubsub-listener-service
+    use-kafka: "true"
+  name: yt-pubsub-listener-service
+spec:
+  accessFrom:
+    namespaceSelectors:
+    - matchLabels:
+        app.kubernetes.io/instance: flux-system
+  image: europe-west1-docker.pkg.dev/sbx-test-42-36fc/content-video/yt-pubsub-listener-service
+  interval: 1m0s
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta1
+kind: ImageUpdateAutomation
+metadata:
+  labels:
+    app: yt-pubsub-listener-service
+    component: service
+    tags.datadoghq.com/service: yt-pubsub-listener-service
+    use-kafka: "true"
+  name: yt-pubsub-listener-service
+spec:
+  git:
+    checkout:
+      ref:
+        branch: master
+    commit:
+      author:
+        email: fluxcdbot@users.noreply.github.com
+        name: fluxcdbot
+      messageTemplate: '{{range .Updated.Images}}{{println .}}{{end}}'
+    push:
+      branch: master
+  interval: 1m0s
+  sourceRef:
+    kind: GitRepository
+    name: vma
+    namespace: apps
+  update:
+    path: ./deploy/vma-apps/yt-pubsub-listener-service
+    strategy: Setters
