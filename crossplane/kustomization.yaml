@@ -3,11 +3,11 @@ kind: Kustomization
 namespace: crossplane-system
 resources:
   - crossplane-core.yaml
-  - crossplane-aws-provider.yaml
-  - aws-providerconfig.yaml
-  - crossplane-helm-provider.yaml
-  - helm-providerconfig.yaml
-  - crossplane-kubernetes-provider.yaml
-  - kubernetes-providerconfig.yaml
-  - composite-functions.yaml
-  - compositions.yaml
+#  - crossplane-aws-provider.yaml
+#  - aws-providerconfig.yaml
+#  - crossplane-helm-provider.yaml
+#  - helm-providerconfig.yaml
+#  - crossplane-kubernetes-provider.yaml
+#  - kubernetes-providerconfig.yaml
+#  - composite-functions.yaml
+#  - compositions.yaml
