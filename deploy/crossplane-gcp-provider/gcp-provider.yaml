@@ -18,7 +18,7 @@ spec:
 apiVersion: pkg.crossplane.io/v1
 kind: Provider
 metadata:
-  name: provider-gcp-cloudplatform
+  name: provider-gcp-artifact
 spec:
   package: xpkg.upbound.io/upbound/provider-gcp-artifact:v1.1.0
   runtimeConfigRef:
