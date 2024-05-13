@@ -4,8 +4,6 @@ namespace: crossplane-system
 resources:
   - crossplane-core
   - crossplane-gcp-provider
+  - confluent-providerconfig
+  - vma
 #  - crossplane-composite-functions
-#  - crossplane-helm-provider
-#  - helm-providerconfig
-#  - crossplane-kubernetes-provider
-#  - kubernetes-providerconfig

@@ -1,0 +1,11 @@
+apiVersion: confluent.crossplane.io/v1beta1
+kind: ProviderConfig
+metadata:
+  name: confluent-provider
+spec:
+  credentials:
+    source: Secret
+    secretRef:
+      name: confluent-provider-credentials
+      namespace: crossplane-system
+      key: credentials

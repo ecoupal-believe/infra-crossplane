@@ -1,13 +1,12 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1beta1
 kind: Kustomization
 metadata:
-  name: vma-infra
+  name: confluent-providerconfig
 spec:
   dependsOn:
-    - name: gcp-providerconfig
-    - name: confluent-providerconfig
+    - name: crossplane-confluent-provider
   interval: 30s
-  path: ../deploy/vma
+  path: ../deploy/confluent-providerconfig
   prune: true
   sourceRef:
     kind: GitRepository
