@@ -4,7 +4,7 @@ kind: Topic
 metadata:
   name: youtube-events
   annotations:
-    crossplane.io/external-name: ccontent_video-youtube_events
+    crossplane.io/external-name: content_video-youtube_events
 spec:
   forProvider:
     replicationFactor: 3
