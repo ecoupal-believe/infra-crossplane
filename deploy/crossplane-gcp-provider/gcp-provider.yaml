@@ -22,16 +22,6 @@ spec:
 apiVersion: pkg.crossplane.io/v1
 kind: Provider
 metadata:
-  name: provider-family-gcp
-spec:
-  package: xpkg.upbound.io/upbound/provider-family-gcp:v1.1.0
-#  skipDependencyResolution: true
-  runtimeConfigRef:
-    name: provider-gcp
----
-apiVersion: pkg.crossplane.io/v1
-kind: Provider
-metadata:
   name: provider-gcp-artifact
 spec:
   package: xpkg.upbound.io/upbound/provider-gcp-artifact:v1.1.0
