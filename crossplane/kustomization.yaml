@@ -5,8 +5,6 @@ resources:
   - crossplane-core.yaml
   - crossplane-gcp-provider.yaml
   - gcp-providerconfig.yaml
-  - crossplane-confluent-provider.yaml
-  - confluent-providerconfig.yaml
   - crossplane-kafka-provider.yaml
   - kafka-providerconfig.yaml
   - vma-infra.yaml

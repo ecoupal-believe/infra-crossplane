@@ -3,6 +3,5 @@ kind: Kustomization
 namespace: crossplane-system
 resources:
   - artifacts
-  - confluent
   - kafka
   - gateway
