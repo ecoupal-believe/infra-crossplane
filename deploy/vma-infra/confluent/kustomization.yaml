@@ -2,7 +2,4 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 namespace: crossplane-system
 resources:
-  - external-secrets
-  - artifacts
-  - kafka
-  - gateway
+  - service-account.yaml
