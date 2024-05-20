@@ -3,5 +3,5 @@ kind: Kustomization
 resources:
   - external-secrets
   - artifacts
-  - kafka
+#  - kafka
   - gateway
