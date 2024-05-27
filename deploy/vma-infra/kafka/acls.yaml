@@ -1,0 +1,9 @@
+apiVersion: topic.kafka.crossplane.io/v1alpha1
+kind: AccessControlList
+metadata:
+  name: youtube-events
+spec:
+  forProvider:
+
+  providerConfigRef:
+    name: kafka-provider
