@@ -15,5 +15,5 @@ resources:
 #  - helm-providerconfig.yaml
 #  - crossplane-kubernetes-provider.yaml
 #  - kubernetes-providerconfig.yaml
-#  - composite-functions.yaml
+  - composite-functions.yaml
 #  - compositions.yaml
