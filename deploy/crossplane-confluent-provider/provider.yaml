@@ -20,4 +20,4 @@ metadata:
 spec:
   package: xpkg.upbound.io/crossplane-contrib/provider-confluent:v0.4.2
   runtimeConfigRef:
-    name: provider-kafka
+    name: provider-confluent
