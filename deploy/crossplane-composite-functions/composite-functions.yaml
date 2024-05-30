@@ -4,6 +4,8 @@ metadata:
   name: go-templating
 spec:
   package: xpkg.upbound.io/crossplane-contrib/function-go-templating:v0.4.1
+  runtimeConfigRef:
+    name: provider-kafka
 ---
 apiVersion: pkg.crossplane.io/v1beta1
 kind: Function
@@ -11,6 +13,8 @@ metadata:
   name: auto-ready
 spec:
   package: xpkg.upbound.io/crossplane-contrib/function-auto-ready:v0.2.1
+  runtimeConfigRef:
+    name: provider-kafka
 #---
 #apiVersion: pkg.crossplane.io/v1beta1
 #kind: Function
