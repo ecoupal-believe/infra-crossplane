@@ -7,8 +7,7 @@ resources:
   - gcp-providerconfig.yaml
   - crossplane-confluent-provider.yaml
   - confluent-providerconfig.yaml
-#  - crossplane-kafka-provider.yaml
-#  - kafka-providerconfig.yaml
+  - crossplane-kafka-provider.yaml
 #  - vma-infra.yaml
 #  - vma-apps.yaml
 #  - crossplane-helm-provider.yaml
