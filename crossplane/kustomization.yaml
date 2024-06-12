@@ -5,14 +5,16 @@ resources:
   - crossplane-core.yaml
   - crossplane-gcp-provider.yaml
   - gcp-providerconfig.yaml
-  - crossplane-confluent-provider.yaml
-  - confluent-providerconfig.yaml
-  - crossplane-kafka-provider.yaml
+  - composite-functions.yaml
+  - crossplane-mongodbatlas-provider.yaml
+  - mongodbatlas-providerconfig.yaml
+#  - crossplane-confluent-provider.yaml
+#  - confluent-providerconfig.yaml
+#  - crossplane-kafka-provider.yaml
 #  - vma-infra.yaml
 #  - vma-apps.yaml
 #  - crossplane-helm-provider.yaml
 #  - helm-providerconfig.yaml
 #  - crossplane-kubernetes-provider.yaml
 #  - kubernetes-providerconfig.yaml
-  - composite-functions.yaml
 #  - compositions.yaml

@@ -1,0 +1,11 @@
+apiVersion: mongodbatlas.crossplane.io/v1beta1
+kind: ProviderConfig
+metadata:
+  name: mongodbatlas-provider
+spec:
+  credentials:
+    source: Secret
+    secretRef:
+      name: mongodbatlas-provider-credentials
+      namespace: crossplane-system
+      key: credentials

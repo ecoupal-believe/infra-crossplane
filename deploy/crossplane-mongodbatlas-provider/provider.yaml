@@ -1,0 +1,23 @@
+apiVersion: pkg.crossplane.io/v1beta1
+kind: DeploymentRuntimeConfig
+metadata:
+  name: provider-mongodbatlas
+spec:
+  deploymentTemplate:
+    spec:
+      selector: {}
+      template:
+        spec:
+          containers:
+            - name: package-runtime
+              args:
+                - --debug
+---
+apiVersion: pkg.crossplane.io/v1
+kind: Provider
+metadata:
+  name: provider-mongodbatlas
+spec:
+  package: xpkg.upbound.io/crossplane-contrib/provider-mongodbatlas:v0.4.1
+  runtimeConfigRef:
+    name: provider-mongodbatlas
