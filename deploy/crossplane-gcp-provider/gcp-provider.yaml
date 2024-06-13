@@ -16,7 +16,7 @@ spec:
     metadata:
       name: crossplane-provider-gcp
       annotations:
-        iam.gke.io/gcp-service-account: crossplane-provider-gcp@sbx-test-42-967a.iam.gserviceaccount.com
+        iam.gke.io/gcp-service-account: crossplane-provider-gcp@sbx-test-42-1be9.iam.gserviceaccount.com
 ---
 apiVersion: pkg.crossplane.io/v1
 kind: Provider
