@@ -8,8 +8,8 @@ resources:
   - composite-functions.yaml
 #  - crossplane-mongodbatlas-provider.yaml
 #  - mongodbatlas-providerconfig.yaml
-  - crossplane-confluent-provider.yaml
-  - confluent-providerconfig.yaml
+#  - crossplane-confluent-provider.yaml
+#  - confluent-providerconfig.yaml
 #  - crossplane-kafka-provider.yaml
 #  - vma-infra.yaml
 #  - vma-apps.yaml
