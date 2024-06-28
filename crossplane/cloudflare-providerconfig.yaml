@@ -1,0 +1,14 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta1
+kind: Kustomization
+metadata:
+  name: cloudflare-providerconfig
+spec:
+  dependsOn:
+    - name: crossplane-cloudflare-provider
+  interval: 30s
+  path: ../deploy/cloudflare-providerconfig
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: crossplane-sync
+  timeout: 2m
