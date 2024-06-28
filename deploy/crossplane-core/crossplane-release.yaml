@@ -17,3 +17,6 @@ spec:
   values:
     args:
       - --enable-environment-configs
+    serviceAccount:
+      customAnnotations:
+        iam.gke.io/gcp-service-account: crossplane@sbx-test-42-c755.iam.gserviceaccount.com
