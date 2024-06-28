@@ -18,6 +18,6 @@ kind: Provider
 metadata:
   name: provider-cloudflare
 spec:
-  package: europe-west1-docker.pkg.dev/sbx-test-42-c755/provider/provider-cloudflare:latest
+  package: europe-west1-docker.pkg.dev/sbx-test-42-c755/provider/provider-cloudflare:V0.1
   runtimeConfigRef:
     name: provider-cloudflare
