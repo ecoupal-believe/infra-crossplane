@@ -14,9 +14,9 @@ spec:
                 - --debug
   serviceAccountTemplate:
     metadata:
-      name: crossplane-provider-gcp
+      name: crossplane-provider-cloudflare
       annotations:
-        iam.gke.io/gcp-service-account: crossplane-provider-gcp@sbx-test-42-c755.iam.gserviceaccount.com
+        iam.gke.io/gcp-service-account: crossplane-provider-cloudflare@sbx-test-42-c755.iam.gserviceaccount.com
 ---
 apiVersion: pkg.crossplane.io/v1
 kind: Provider
