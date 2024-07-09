@@ -6,12 +6,12 @@ resources:
   - crossplane-gcp-provider.yaml
   - gcp-providerconfig.yaml
   - composite-functions.yaml
-  - crossplane-cloudflare-provider.yaml
-  - cloudflare-providerconfig.yaml
+#  - crossplane-cloudflare-provider.yaml
+#  - cloudflare-providerconfig.yaml
 #  - crossplane-mongodbatlas-provider.yaml
 #  - mongodbatlas-providerconfig.yaml
-#  - crossplane-confluent-provider.yaml
-#  - confluent-providerconfig.yaml
+  - crossplane-confluent-provider.yaml
+  - confluent-providerconfig.yaml
 #  - crossplane-kafka-provider.yaml
 #  - vma-infra.yaml
 #  - vma-apps.yaml
