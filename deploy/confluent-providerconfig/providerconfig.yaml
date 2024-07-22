@@ -1,7 +1,7 @@
 apiVersion: confluent.crossplane.io/v1beta1
 kind: ProviderConfig
 metadata:
-  name: confluent-provider
+  name: default
 spec:
   credentials:
     source: Secret
